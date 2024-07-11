@@ -6,11 +6,11 @@ import nginxRules
 import utils
 import alert
 
-nginx_rules_location = "testAccesslog.txt"
+nginx_logs_location = "testAccesslog.txt"
 
 def test_nginx_rules():
-    if os.path.exists(nginx_rules_location):
-        res = utils.parse_nginx_file(nginx_rules_location)
+    if os.path.exists(nginx_logs_location):
+        res = utils.parse_nginx_file(nginx_logs_location)
         nginxRules.NginxRules(res).try_rules()
     else:
         alert.sound_alert("Nginx file does not exist")
