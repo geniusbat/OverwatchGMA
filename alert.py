@@ -5,11 +5,13 @@ token_location = "telegramCredentials"
 chat_id = "6953969784"
 
 def get_bot_token():
-    with open(token_location, mode="r", encoding="utf-8") as file:
-        token = file.readline().strip(" ").strip("").strip("\n")
-        return token
-    return "7237079966:AAEMGWdPUGhfnsf6zkdPai_s3dUp1UfwGMU"
-    return None
+    try:
+        with open(token_location, mode="r", encoding="utf-8") as file:
+            token = file.readline().strip(" ").strip("").strip("\n")
+            return token
+    except:
+        print("Error extracting token")
+        return None
 
 def get_bot_updates():
     token = get_bot_token()
@@ -29,6 +31,8 @@ def sound_alert(alert):
     url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
 
     res = requests.get(url).json()
+    if res["ok"] in ["False", False]:
+        print(res)
     #print(res)
 
 if __name__ == '__main__':

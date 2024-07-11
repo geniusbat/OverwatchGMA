@@ -2,8 +2,6 @@ import json
 import os
 import alert
 
-#TODO: Iterate first through logs and then through rules (not rules -> logs)
-
 class NginxRules():
     known_ips = [
         "127.0.0.1",#localhost
@@ -46,11 +44,12 @@ class NginxRules():
         
         #Check if ip is known
         #Ip not seen before
-        if not log["remote_address"] in self.rule_data["seenIps"].keys() and not log["remote_address"] in self.known_ips:
-            self.rule_data["seenIps"][log["remote_address"]] = 1
-            self.alerts.append("Alert 8 - New IP "+log["remote_address"]+" - "+json.dumps(log))
-        else:
-            self.rule_data["seenIps"][log["remote_address"]] += 1
+        if not log["remote_address"] in self.known_ips:
+            if not log["remote_address"] in self.rule_data["seenIps"].keys():
+                self.rule_data["seenIps"][log["remote_address"]] = 1
+                self.alerts.append("Alert 8 - New IP "+log["remote_address"]+" - "+json.dumps(log))
+            else:
+                self.rule_data["seenIps"][log["remote_address"]] += 1
     
     #This will exclude known ips
     def high_amount_of_requests(self, log):
