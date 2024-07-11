@@ -22,10 +22,15 @@ def reset_seen_ips_count():
 
 def test_configuration():
     alert.sound_alert("This is a test, Am I working?")
-    try:
-        ins = nginxRules.NginxRules([])
-    except:
-        print("Something doesnt work in nginx rules")
+    if os.path.exists(nginx_logs_location):
+        res = utils.parse_nginx_file(nginx_logs_location)
+        try:
+            ins = nginxRules.NginxRules(res)
+        except:
+            print("Something doesnt work in nginx rules")
+    else:
+        alert.sound_alert("Nginx file does not exist")
+
 
 if __name__ == "__main__":
     #To run any function do "python <function_name>"
