@@ -6,3 +6,8 @@ Telegram bot is at https://t.me/overwatchGMA_bot
 
 -Run chmod 755 on .sh files to make sure users can run it. Preferably run script as ubuntu in cron
 -crontab -e to see crontab file
+-sh scripts require full path to .py files! 
+    This is the current cronjob: 0 */6 * * * root /home/OverwatchGMA/.venv/bin/python3 /home/OverwatchGMA/nginx_manager.py test_nginx_rules &>> /home/OverwatchGMA/cron_output
+
+-iptables -A INPUT -s <IP-que-quiero-banear> -j DROP
+-iptables -L ver reglas

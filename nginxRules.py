@@ -7,7 +7,6 @@ class NginxRules():
         "127.0.0.1",#localhost
         "147.185.133.53", #Palo alto scanner
         "37.14.188.230",
-        "95.127.33.6"
         ]
     access_logs = []
     rule_data_location = "nginx_rule_data"
@@ -30,13 +29,15 @@ class NginxRules():
 
     def try_rules(self):
         for log in self.access_logs:
-            self.unusual_ips(log)
+            #self.unusual_ips(log)
+            self.unusual_actions(log)
             self.high_amount_of_requests(log)
             self.unusual_http_petitions(log)
 
         #Write output
         self.write_output()
 
+    #Not being used, subbed by 
     def unusual_ips(self, log):
         #Initialize list
         if not "seenIps" in self.rule_data:
@@ -64,6 +65,12 @@ class NginxRules():
     def unusual_http_petitions(self, log):
         if any(x in log["request_type"] for x in ["PUT", "DELETE", "TRACE", "PATCH"]):
             self.alerts.append("Alert 8 - Unusual http petition received - "+json.dumps(log))
+    
+    def unusual_actions(self, log):
+        #Unknown/unseen ip
+        if not log["remote_address"] in self.known_ips:
+            if not ("MoneyGMA" in log["referer"] or "moneygma" in log["referer"] or "tattoo" in log["referer"] or "Tattoo" in log["referer"]):
+                self.alerts.append("Alert 8 - Unusual petition received - "+json.dumps(log))
 
     def reset_seen_ips_count(self):
         if "seenIps" in self.rule_data:
