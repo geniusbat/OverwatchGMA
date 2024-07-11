@@ -1,2 +1,2 @@
 #!/bin/bash
-python nginx_manager.py
+python3 nginx_manager.py
