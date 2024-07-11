@@ -20,6 +20,13 @@ def reset_seen_ips_count():
     ins.reset_seen_ips_count()
     ins.write_output()
 
+def test_configuration():
+    alert.sound_alert("This is a test, Am I working?")
+    try:
+        ins = nginxRules.NginxRules([])
+    except:
+        print("Something doesnt work in nginx rules")
+
 if __name__ == "__main__":
     #To run any function do "python <function_name>"
     if len(sys.argv) >= 2:

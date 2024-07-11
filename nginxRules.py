@@ -5,7 +5,12 @@ import alert
 #TODO: Iterate first through logs and then through rules (not rules -> logs)
 
 class NginxRules():
-    known_ips = ["127.0.0.1"]
+    known_ips = [
+        "127.0.0.1",#localhost
+        "147.185.133.53", #Palo alto scanner
+        "37.14.188.230",
+        "95.127.33.6"
+        ]
     access_logs = []
     rule_data_location = "nginx_rule_data"
     rule_data = {}

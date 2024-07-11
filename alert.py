@@ -5,8 +5,10 @@ token_location = "telegramCredentials"
 chat_id = "6953969784"
 
 def get_bot_token():
-    with open(token_location, "r") as file:
-        return file.readline().strip(" ")
+    with open(token_location, mode="r", encoding="utf-8") as file:
+        token = file.readline().strip(" ").strip("").strip("\n")
+        return token
+    return "7237079966:AAEMGWdPUGhfnsf6zkdPai_s3dUp1UfwGMU"
     return None
 
 def get_bot_updates():
