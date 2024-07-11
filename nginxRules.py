@@ -2,6 +2,8 @@ import json
 import os
 import alert
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 class NginxRules():
     known_ips = [
         "127.0.0.1",#localhost

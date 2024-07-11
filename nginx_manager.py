@@ -6,6 +6,8 @@ import nginxRules
 import utils
 import alert
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 nginx_logs_location = "testAccesslog.txt"
 
 def test_nginx_rules():

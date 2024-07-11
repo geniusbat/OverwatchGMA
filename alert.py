@@ -1,5 +1,8 @@
 import requests
 import sys
+from os import chdir, path
+
+chdir(path.dirname(path.abspath(__file__)))
 
 token_location = "telegramCredentials"
 chat_id = "6953969784"

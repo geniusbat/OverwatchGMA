@@ -1,5 +1,8 @@
 
 import re
+from os import chdir, path
+
+chdir(path.dirname(path.abspath(__file__)))
 
 def parse_nginx_file(location):
     logs = []
