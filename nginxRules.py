@@ -49,7 +49,7 @@ class NginxRules():
     
     #This will exclude known ips
     def high_amount_of_requests(self, log):
-        threshold = 10
+        threshold = 200
         if log["remote_address"] in self.rule_data["seenIps"].keys():
             if self.rule_data["seenIps"][log["remote_address"]] >= threshold:
                 self.alerts.append("Alert 15 - High amount of request from unkown IP "+log["remote_address"]+" - "+json.dumps(log))
