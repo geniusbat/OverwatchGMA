@@ -2,7 +2,7 @@
 #Run chmod 777
 
 # Path to the file containing the list of IPs to deny
-DENY_IPS_FILE=$1
+DENY_IPS_FILE="ips_to_ban"
 
 # Loop through each IP in the file and add a deny rule
 while IFS= read -r ip; do
