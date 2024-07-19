@@ -101,6 +101,10 @@ class NginxRules():
                             count[log["remote_address"]]+=1
                     else:
                         count[log["remote_address"]]=1
+        cad = "\n"
+        for ip in count.keys():
+            cad+=ip+"\n"
+        alert.sound_alert("Alert 0 - Banned all these Ips: "+cad)
 
 
     def write_output(self):
