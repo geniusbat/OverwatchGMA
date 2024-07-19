@@ -1,7 +1,8 @@
 import json
 import os
 import alert
-import pyufw as ufw
+import subprocess
+
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -95,7 +96,7 @@ class NginxRules():
                         count[log["remote_address"]]+=1
                         if count[log["remote_address"]] >= threshold:
                             #Ban
-                            ufw.add("deny from "+ log["remote_address"] +" to any", number=1)
+                            subprocess.Popen(["./ban.sh "+log["remote_address"]+" any"], shell=True)
                     else:
                         count[log["remote_address"]]=1
 
