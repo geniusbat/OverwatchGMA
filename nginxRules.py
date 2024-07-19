@@ -93,10 +93,12 @@ class NginxRules():
                 #Weird action
                 if not ("MoneyGMA" in log["referer"] or "moneygma" in log["referer"] or "tattoo" in log["referer"] or "Tattoo" in log["referer"]):
                     if log["remote_address"] in count:
-                        count[log["remote_address"]]+=1
-                        if count[log["remote_address"]] >= threshold:
+                        if count[log["remote_address"]] == threshold:
                             #Ban
+                            count[log["remote_address"]]+=1 #Make this so it wont ban again
                             subprocess.Popen(["./ban.sh "+log["remote_address"]+" any"], shell=True)
+                        else:
+                            count[log["remote_address"]]+=1
                     else:
                         count[log["remote_address"]]=1
 
