@@ -1,8 +1,6 @@
 import json
 import os
 import alert
-import subprocess
-
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -84,9 +82,10 @@ class NginxRules():
             for ip in self.rule_data["seenIps"].keys():
                 self.rule_data["seenIps"][ip] = 1
     
-    def super_ban(self):
+    def super_ban(self, file_location="ips_to_ban"):
         threshold = 5
         count = {}
+        to_ban = []
         for log in self.access_logs:
             #Not a known ip
             if not log["remote_address"] in self.known_ips:
@@ -96,15 +95,16 @@ class NginxRules():
                         if count[log["remote_address"]] == threshold:
                             #Ban
                             count[log["remote_address"]]+=1 #Make this so it wont ban again
-                            subprocess.Popen(["./ban.sh "+log["remote_address"]+" any"], shell=True)
+                            to_ban.append(log["remote_address"])
                         else:
                             count[log["remote_address"]]+=1
                     else:
                         count[log["remote_address"]]=1
-        cad = "\n"
-        for ip in count.keys():
+        cad = ""
+        for ip in to_ban:
             cad+=ip+"\n"
-        alert.sound_alert("Alert 0 - Banned all these Ips: "+cad)
+        with open(file_location, "w") as file:
+            file.write(cad)
 
 
     def write_output(self):
