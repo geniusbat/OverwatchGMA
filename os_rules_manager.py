@@ -1,7 +1,6 @@
 import os
 import sys
 import osRules
-import utils
 import alert
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))

@@ -1,6 +1,7 @@
 import json
 import os
 import alert
+import pyufw as ufw
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -9,6 +10,8 @@ class NginxRules():
         "127.0.0.1",#localhost
         "147.185.133.53", #Palo alto scanner
         "37.14.188.230",
+        "88.29.175.151",
+        "52.46.83.62"
         ]
     access_logs = []
     rule_data_location = "nginx_rule_data"
@@ -26,6 +29,7 @@ class NginxRules():
                     self.rule_data = json.load(file)
                 except:
                     self.alerts.append("Alert 16 - Could not load Nginx rule_data file at "+self.rule_data_location)
+                    self.rule_data = {}
         else:
             self.rule_data = {}
 
@@ -78,12 +82,31 @@ class NginxRules():
         if "seenIps" in self.rule_data:
             for ip in self.rule_data["seenIps"].keys():
                 self.rule_data["seenIps"][ip] = 1
+    
+    def super_ban(self):
+        threshold = 5
+        count = {}
+        for log in self.access_logs:
+            #Not a known ip
+            if not log["remote_address"] in self.known_ips:
+                #Weird action
+                if not ("MoneyGMA" in log["referer"] or "moneygma" in log["referer"] or "tattoo" in log["referer"] or "Tattoo" in log["referer"]):
+                    if log["remote_address"] in count:
+                        count[log["remote_address"]]+=1
+                        if count[log["remote_address"]] >= threshold:
+                            #Ban
+                            ufw.add("deny from "+ log["remote_address"] +" to any", number=1)
+                    else:
+                        count[log["remote_address"]]=1
+
 
     def write_output(self):
         #Sound alerts
         if len(self.alerts)>0:
             for indv_alert in self.alerts:
                 alert.sound_alert(indv_alert)
+        else:
+            alert.sound_alert("Alert 0 - Nginx Rules everythign alright")
         #Save rule_data
         data = json.dumps(self.rule_data)
         with open(self.rule_data_location, 'w') as file:

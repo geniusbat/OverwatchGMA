@@ -68,6 +68,8 @@ class OsRules():
         if len(self.alerts)>0:
             for indv_alert in self.alerts:
                 alert.sound_alert(indv_alert)
+        else:
+            alert.sound_alert("Alert 0 - OS Rules everythign alright")
         #Save rule_data
         '''
         data = json.dumps(self.rule_data)
