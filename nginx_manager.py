@@ -34,7 +34,7 @@ def test_configuration():
 def ban_current_ips():
     if os.path.exists(nginx_logs_location):
         res = utils.parse_nginx_file(nginx_logs_location)
-        nginxRules.NginxRules(res).super_ban()
+        nginxRules.NginxRules(res).super_ban() #Add file location if custom needed
     else:
         alert.sound_alert("Nginx file does not exist")
 
