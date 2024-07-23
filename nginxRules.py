@@ -1,6 +1,5 @@
 import json
 import os
-import alert
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -16,11 +15,16 @@ class NginxRules():
     rule_data_location = "nginx_rule_data"
     rule_data = {}
     alerts = []
+    ban_threshold = 6
+    ban_file_location = ""
+    outputed_ip = []
 
-    def __init__(self, input_access_logs):
+    def __init__(self, input_access_logs, ban_threshold=6, ban_file_location="ips_to_ban"):
         #Initialize stuff
         self.access_logs = input_access_logs
         self.alerts = []
+        self.ban_threshold = ban_threshold
+        self.ban_file_location = ban_file_location
         #Load data
         if os.path.exists(self.rule_data_location):
             with open(self.rule_data_location, 'r') as file:
@@ -33,55 +37,87 @@ class NginxRules():
             self.rule_data = {}
     
     def weird_action(self, log):
-        unusual_referrer = not ("MoneyGMA" in log["referer"] or "moneygma" in log["referer"] or "tattoo" in log["referer"] or "Tattoo" in log["referer"])
-        unusual_action = any(x in log["request_type"] for x in ["PUT", "DELETE", "TRACE", "PATCH"])
-        return unusual_referrer and unusual_action
+        unusual_request = any(x in log["request_type"] for x in ["PUT", "DELETE", "TRACE", "PATCH"])
+        return unusual_request
+    
+    def weird_referrer(self, log):
+        return not ("MoneyGMA" in log["referer"] or "moneygma" in log["referer"] or "tattoo" in log["referer"] or "Tattoo" in log["referer"])
 
     def try_rules(self):
         for log in self.access_logs:
-            #self.unusual_ips(log)
-            self.unusual_actions(log)
-            self.high_amount_of_requests(log)
+            if log != None:
+                self.unusual_successfull_actions(log)
+                self.high_amount_of_requests(log)
 
         #Write output
         self.write_output()
 
-    #Not being used
-    def unusual_ips(self, log):
-        #Initialize list
-        if not "seenIps" in self.rule_data:
-            self.rule_data["seenIps"] = {}
-        
-        #Check if ip is known
-        #Ip not seen before
-        if not log["remote_address"] in self.known_ips:
-            if not log["remote_address"] in self.rule_data["seenIps"].keys():
-                self.rule_data["seenIps"][log["remote_address"]] = 1
-                self.alerts.append("Alert 8 - New IP "+log["remote_address"]+" - "+json.dumps(log))
-            else:
-                self.rule_data["seenIps"][log["remote_address"]] += 1
+        return self.alerts
     
     #This will exclude known ips
     def high_amount_of_requests(self, log):
-        threshold = 200
+        #Initialize seen ips
         if not "seenIps" in self.rule_data:
             self.rule_data["seenIps"] = {}
-        if log["remote_address"] in self.rule_data["seenIps"].keys():
-            if self.rule_data["seenIps"][log["remote_address"]] >= threshold:
-                self.alerts.append("Alert 15 - High amount of request from unkown IP "+log["remote_address"]+" - "+json.dumps(log))
-        else:
-            self.rule_data["seenIps"][log["remote_address"]] = 1
-    
-    def unusual_actions(self, log):
-        #Unknown/unseen ip
-        if not log["remote_address"] in self.known_ips:
-            if self.weird_action(log):
-                self.alerts.append("Alert 8 - Unusual petition received - "+json.dumps(log))
+        
+        #Try rule
+        banable = False
+        weird = False
+        
+        #It is something weird 
+        if self.weird_action(log):
+            weird = True
+            banable = True
 
+        #Get request status as int
+        try:
+            request_status = int(log["request_status"])
+        except:
+            request_status = 400
+        #Weird referrer and status is failure
+        if self.weird_referrer(log) and (400 <= request_status and request_status <= 499):
+            weird = True
+
+        #Log was weird therefore check if too many from that address
+        if weird:
+            #Address in dict
+            if log["remote_address"] in self.rule_data["seenIps"].keys():
+                self.rule_data["seenIps"][log["remote_address"]] += 1
+            #Address not in dict
+            else:
+                self.rule_data["seenIps"][log["remote_address"]] = 1
+            #Try to ban if already too many requests 
+            if self.rule_data["seenIps"][log["remote_address"]] >= self.ban_threshold*2:
+                banable = True
+            #Alert if above threshold 
+            if self.rule_data["seenIps"][log["remote_address"]] >= self.ban_threshold and not log["remote_address"] in self.outputed_ip:
+                self.alerts.append("Alert 15 - High amount of request from unkown IP "+log["remote_address"]+" at "+str(self.rule_data["seenIps"][log["remote_address"]])+" requests - "+json.dumps(log))
+                self.outputed_ip.append(log["remote_address"])
+                #Also ban ip if necessary
+                previously_banned_ips = self.rule_data.get("banned_ips",[])
+                if banable and not log["remote_address"] in previously_banned_ips:
+                    previously_banned_ips.append(log["remote_address"])
+                    self.rule_data["banned_ips"]=previously_banned_ips
+                    self.add_to_ban_file(log["remote_address"])
+                    self.alerts.append("Alert 0 - Therefore the IP "+log["remote_address"]+" was banned.")
+
+
+    def unusual_successfull_actions(self, log):
+        #Get request status as int
+        try:
+            request_status = int(log["request_status"])
+        except:
+            request_status = 400
+        
+        if 200 <= request_status and request_status <= 399:
+            self.alerts.append("Alert 13 - Successfull unexpected request from unkown IP "+log["remote_address"]+" - "+json.dumps(log))
+
+    def reset_banned_ips(self):
+        if "banned_ips" in self.rule_data:
+            self.rule_data["banned_ips"] = []
+        
     def reset_seen_ips_count(self):
-        if "seenIps" in self.rule_data:
-            for ip in self.rule_data["seenIps"].keys():
-                self.rule_data["seenIps"][ip] = 1
+        self.rule_data["seenIps"] = {}
     
     def super_ban(self, file_location="ips_to_ban"):
         threshold = 2
@@ -89,7 +125,7 @@ class NginxRules():
         to_ban = []
         for log in self.access_logs:
             #Not a known ip
-            if not log["remote_address"] in self.known_ips:
+            if log!=None and not log["remote_address"] in self.known_ips:
                 #Weird action
                 if self.weird_action(log):
                     if not log["remote_address"] in to_ban:
@@ -105,14 +141,11 @@ class NginxRules():
         with open(file_location, "w") as file:
             file.write(cad)
 
+    def add_to_ban_file(self, ip):
+        with open(self.ban_file_location, "a") as file:
+            file.write(ip+"\n")
 
     def write_output(self):
-        #Sound alerts
-        if len(self.alerts)>0:
-            for indv_alert in self.alerts:
-                alert.sound_alert(indv_alert)
-        else:
-            alert.sound_alert("Alert 0 - Nginx Rules everythign alright")
         #Save rule_data
         data = json.dumps(self.rule_data)
         with open(self.rule_data_location, 'w') as file:

@@ -10,7 +10,7 @@ while IFS= read -r ip; do
   ufw status | grep -q "DENY IN from $ip"
   if [ $? -ne 0 ]; then
     # Deny the IP
-    ufw deny from "$ip"
+    ufw insert 2 deny from "$ip"
   fi
 done < "$DENY_IPS_FILE"
 
