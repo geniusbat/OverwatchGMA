@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -11,6 +12,10 @@ class NginxRules():
         "88.29.175.151",
         "52.46.83.62"
         ]
+    #TODO: This solution sucks
+    project_url_locations = ["."] #Add django project locations that will be searched for urls.py to extract url names to make sure that even if the referrer is correct there isn't a weird url
+    permitted_urls = []
+
     access_logs = []
     rule_data_location = "nginx_rule_data"
     rule_data = {}
@@ -19,12 +24,16 @@ class NginxRules():
     ban_file_location = ""
     outputed_ip = []
 
+    #Remember to update weird_referrer() if u add new apps
+
     def __init__(self, input_access_logs, ban_threshold=6, ban_file_location="ips_to_ban"):
         #Initialize stuff
         self.access_logs = input_access_logs
         self.alerts = []
         self.ban_threshold = ban_threshold
         self.ban_file_location = ban_file_location
+        #Get permitted urls
+        self.update_permitted_urls()
         #Load data
         if os.path.exists(self.rule_data_location):
             with open(self.rule_data_location, 'r') as file:
@@ -40,8 +49,18 @@ class NginxRules():
         unusual_request = any(x in log["request_type"] for x in ["PUT", "DELETE", "TRACE", "PATCH"])
         return unusual_request
     
+    def unknown_url(self, log):
+        unknown_url = True
+        for url in self.permitted_urls:
+            if url in log["referer"]:
+                unknown_url = False
+                break
+        return unknown_url
+
     def weird_referrer(self, log):
-        return not ("MoneyGMA" in log["referer"] or "moneygma" in log["referer"] or "tattoo" in log["referer"] or "Tattoo" in log["referer"])
+        from_unknown_app = not ("MoneyGMA" in log["referer"] or "moneygma" in log["referer"] or "tattoo" in log["referer"] or "Tattoo" in log["referer"])
+        unknown_url = self.unknown_url(log)
+        return from_unknown_app or unknown_url
 
     def try_rules(self):
         for log in self.access_logs:
@@ -109,7 +128,7 @@ class NginxRules():
         except:
             request_status = 400
         
-        if 200 <= request_status and request_status <= 399:
+        if 200 <= request_status and request_status <= 399 and self.weird_referrer(log):
             self.alerts.append("Alert 13 - Successfull unexpected request from unkown IP "+log["remote_address"]+" - "+json.dumps(log))
 
     def reset_banned_ips(self):
@@ -144,6 +163,26 @@ class NginxRules():
     def add_to_ban_file(self, ip):
         with open(self.ban_file_location, "a") as file:
             file.write(ip+"\n")
+
+    def update_permitted_urls(self):
+        self.permitted_urls = []
+        for project_location in self.project_url_locations:
+            for path, folders, files in os.walk(project_location):
+                # Iterate over directories
+                for folder in folders:
+                    #Check if urls.py is inside, if so extract urls
+                    if "urls.py" in os.listdir(f"{path}/{folder}"):
+                        with open(os.path.join(project_location, "urls.py"), "r") as file:
+                            text = file.read().strip().replace("\n","")
+                            res = re.findall(r"path\([\'\"].*?[\'\"],", text)
+                            if res:
+                                for result in res:
+                                    url_result = re.search(r"[\'\"].*?[\'\"]", result)
+                                    if url_result:
+                                        url = url_result.group().replace("'","").replace("/","").replace("\"","")
+                                        if not url in [" ", "", "\n", "admin"]:
+                                            self.permitted_urls.append(url)
+
 
     def write_output(self):
         #Save rule_data
