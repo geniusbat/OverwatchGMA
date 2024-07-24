@@ -172,7 +172,7 @@ class NginxRules():
                 for folder in folders:
                     #Check if urls.py is inside, if so extract urls
                     if "urls.py" in os.listdir(f"{path}/{folder}"):
-                        with open(os.path.join(project_location, "urls.py"), "r") as file:
+                        with open(os.path.join(project_location, folder, "urls.py"), "r") as file:
                             text = file.read().strip().replace("\n","")
                             res = re.findall(r"path\([\'\"].*?[\'\"],", text)
                             if res:
