@@ -20,7 +20,7 @@ class NginxRules():
     rule_data_location = "nginx_rule_data"
     rule_data = {}
     alerts = []
-    ban_threshold = 6
+    ban_threshold = 10
     ban_file_location = ""
     outputed_ip = []
 
@@ -129,7 +129,9 @@ class NginxRules():
             request_status = 400
         
         if 200 <= request_status and request_status <= 399 and self.weird_referrer(log):
-            self.alerts.append("Alert 13 - Successfull unexpected request from unkown IP "+log["remote_address"]+" - "+json.dumps(log))
+            #These requests are not necessary:
+            if  not ("GET /index HTTP" in log["request_type"] or "GET / HTTP" in log["request_type"]):
+                self.alerts.append("Alert 13 - Successfull unexpected request from unkown IP "+log["remote_address"]+" - "+json.dumps(log))
 
     def reset_banned_ips(self):
         if "banned_ips" in self.rule_data:
@@ -180,6 +182,8 @@ class NginxRules():
                                     url_result = re.search(r"[\'\"].*?[\'\"]", result)
                                     if url_result:
                                         url = url_result.group().replace("'","").replace("/","").replace("\"","")
+                                        if "<" in url:
+                                            url = url.split("<")[0]
                                         if not url in [" ", "", "\n", "admin"]:
                                             self.permitted_urls.append(url)
 
