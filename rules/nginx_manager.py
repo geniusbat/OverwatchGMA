@@ -1,17 +1,22 @@
-import os
 import sys
-import nginxRules
-import utils
-import alert
+sys.path.append("..")
 
+import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-nginx_logs_location = "testAccesslog.txt"
-ban_file = "ips_to_ban"
+import nginxRules
+import utils.alert as alert
+import utils.utils as utils
+import usual_data
+#os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+
+relative_nginx_logs_location = "testAccesslog.txt"
 
 def test_nginx_rules():
-    if os.path.exists(nginx_logs_location):
-        res = utils.parse_nginx_file(nginx_logs_location)
+    current_logs_location = get_logs_location(relative_nginx_logs_location)
+    if os.path.exists(current_logs_location):
+        res = utils.parse_nginx_file(current_logs_location)
         alerts = nginxRules.NginxRules(res).try_rules()
         #Sound alerts
         #TODO: IF too many aggregate alerts
@@ -35,8 +40,9 @@ def reset_banned_ips():
 
 def test_configuration():
     alert.sound_alert("This is a test, Am I working?")
-    if os.path.exists(nginx_logs_location):
-        res = utils.parse_nginx_file(nginx_logs_location)
+    current_logs_location = get_logs_location(relative_nginx_logs_location)
+    if os.path.exists(current_logs_location):
+        res = utils.parse_nginx_file(current_logs_location)
         try:
             ins = nginxRules.NginxRules(res)
         except:
@@ -45,17 +51,25 @@ def test_configuration():
         alert.sound_alert("Nginx file does not exist")
     
 def ban_current_ips():
-    if os.path.exists(nginx_logs_location):
-        res = utils.parse_nginx_file(nginx_logs_location)
+    current_logs_location = get_logs_location(relative_nginx_logs_location)
+    if os.path.exists(current_logs_location):
+        res = utils.parse_nginx_file(current_logs_location)
         nginxRules.NginxRules(res).super_ban() #Add file location if custom needed
     else:
         alert.sound_alert("Nginx file does not exist")
 
 def clean_logs():
-    if os.path.exists(nginx_logs_location):
-        open(nginx_logs_location, "w").close() #This will clear file
+    current_logs_location = get_logs_location(relative_nginx_logs_location)
+    if os.path.exists(current_logs_location):
+        open(current_logs_location, "w").close() #This will clear file
     else:
         alert.sound_alert("Nginx file does not exist")
+
+def get_logs_location(relative_location):
+    if usual_data.DEBUG:
+        return os.path.join(usual_data.ROOT_DIR, "testingData", relative_location)
+    else:
+        return os.path.join(usual_data.ROOT_DIR, relative_location)
 
 
 if __name__ == "__main__":

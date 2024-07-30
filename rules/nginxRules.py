@@ -1,23 +1,21 @@
-import json
-import os
-import re
+import sys
+sys.path.append("..")
 
+import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+import json
+import re
+
+import usual_data
+
 class NginxRules():
-    known_ips = [
-        "127.0.0.1",#localhost
-        "147.185.133.53", #Palo alto scanner
-        "37.14.188.230",
-        "88.29.175.151",
-        "52.46.83.62"
-        ]
     #TODO: This solution sucks
-    project_url_locations = ["."] #Add django project locations that will be searched for urls.py to extract url names to make sure that even if the referrer is correct there isn't a weird url
+    project_url_locations = [os.path.join(usual_data.ROOT_DIR, "testingData")] #Add django project locations that will be searched for urls.py to extract url names to make sure that even if the referrer is correct there isn't a weird url
     permitted_urls = []
 
     access_logs = []
-    rule_data_location = "nginx_rule_data"
+    rule_data_location = os.path.join(usual_data.ROOT_DIR, "nginx_rule_data")
     rule_data = {}
     alerts = []
     ban_threshold = 10
@@ -26,12 +24,12 @@ class NginxRules():
 
     #Remember to update weird_referrer() if u add new apps
 
-    def __init__(self, input_access_logs, ban_threshold=6, ban_file_location="ips_to_ban"):
+    def __init__(self, input_access_logs, ban_threshold=6, ban_file_relative_location="ips_to_ban"):
         #Initialize stuff
         self.access_logs = input_access_logs
         self.alerts = []
         self.ban_threshold = ban_threshold
-        self.ban_file_location = ban_file_location
+        self.ban_file_location = os.path.join(usual_data.ROOT_DIR, ban_file_relative_location)
         #Get permitted urls
         self.update_permitted_urls()
         #Load data

@@ -1,15 +1,16 @@
-import requests
 import sys
-from os import chdir, path
+sys.path.append("..")
 
-chdir(path.dirname(path.abspath(__file__)))
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-token_location = "telegramCredentials"
-chat_id = "6953969784"
+import requests
+
+import usual_data
 
 def get_bot_token():
     try:
-        with open(token_location, mode="r", encoding="utf-8") as file:
+        with open(usual_data.TELEGRAM_TOKEN_LOCATION, mode="r", encoding="utf-8") as file:
             token = file.readline().strip(" ").strip("").strip("\n")
             return token
     except:
@@ -27,11 +28,14 @@ def sound_alert_debug(alert):
     print(alert)
 
 def sound_alert(alert):
-    sound_alert_debug(alert)
-    return
+    if usual_data.DEBUG:
+        sound_alert_debug(alert)
+        return
+    elif usual_data.PRINT_TO_TERMINAL:
+        sound_alert_debug(alert)
     token = get_bot_token()
     message = alert.strip("\n")
-    url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}"
+    url = f"https://api.telegram.org/bot{token}/sendMessage?chat_id={usual_data.TELEGRAM_CHAT_ID}&text={message}"
 
     res = requests.get(url).json()
     if res["ok"] in ["False", False]:

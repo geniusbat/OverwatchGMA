@@ -1,9 +1,11 @@
-import os
 import sys
-import osRules
-import alert
+sys.path.append("..")
 
+import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+import rules.osRules as osRules
+import utils.alert as alert
 
 def test_os_rules():
     ins = osRules.OsRules()
@@ -12,7 +14,7 @@ def test_os_rules():
 def test_configuration():
     alert.sound_alert("This is a test from os rules, Am I working?")
     try:
-        ins = osRules.ins = osRules.OsRules()
+        ins = osRules.OsRules()
     except:
         print("Something doesnt work in nginx rules")
 

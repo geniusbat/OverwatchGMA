@@ -1,9 +1,8 @@
-import json
 import os
-import alert
-import psutil
-
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+import utils.alert as alert
+import psutil
 
 class OsRules():
     rule_data_location = "" #Not used

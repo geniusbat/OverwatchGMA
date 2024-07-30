@@ -2,6 +2,8 @@ Predefined nginx access log format: '$remote_addr - $remote_user [$time_local] '
                     '"$request" $status $body_bytes_sent '
                     '"$http_referer" "$http_user_agent"';
 
+
+
 Telegram bot is at https://t.me/overwatchGMA_bot
 
 -Run chmod 755 on .sh files to make sure users can run it. Preferably run script as ubuntu in cron
