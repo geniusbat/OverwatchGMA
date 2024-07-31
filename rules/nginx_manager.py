@@ -10,7 +10,6 @@ import utils.utils as utils
 import usual_data
 #os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-
 relative_nginx_logs_location = "testAccesslog.txt"
 
 def test_nginx_rules():
@@ -68,8 +67,8 @@ def clean_logs():
 def get_logs_location(relative_location):
     if usual_data.DEBUG:
         return os.path.join(usual_data.ROOT_DIR, "testingData", relative_location)
-    else:
-        return os.path.join(usual_data.ROOT_DIR, relative_location)
+    else:#If not debug it is an absolute location
+        return relative_location
 
 
 if __name__ == "__main__":

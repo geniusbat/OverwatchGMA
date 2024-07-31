@@ -23,3 +23,7 @@ KNOWN_IPS = [
 ]
 
 #Remember to update "project_url_locations" in nginxRules.py
+
+
+# ----------------------- OS -----------------------
+MONITOR_TEMP = False

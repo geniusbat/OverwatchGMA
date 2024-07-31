@@ -1,5 +1,10 @@
+import sys
+sys.path.append("..")
+
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+import usual_data
 
 import utils.alert as alert
 import psutil
@@ -8,6 +13,7 @@ class OsRules():
     rule_data_location = "" #Not used
     rule_data = {}
     alerts = []
+    temperature = ""
 
     def __init__(self):
         #Initialize stuff
@@ -29,6 +35,7 @@ class OsRules():
         self.near_full_disk_space()
         self.high_cpu_usage()
         self.high_ram_usage()
+        self.temperature_monitoring()
 
         #Write output
         self.write_output()
@@ -60,6 +67,15 @@ class OsRules():
             self.alerts.append("Alert 16 - CPU space is at "+str(percent)+"% usage")
         elif percent >= threshold:
             self.alerts.append("Alert 8 - CPU space is at "+str(percent)+"% usage")
+    
+    def temperature_monitoring(self):
+        if usual_data.MONITOR_TEMP:
+            try:
+                temps = psutil.sensors_temperatures()
+                for device in temps:
+                    self.temperature += str(device)+" "+str(temps[device][0][1])+";  "
+            except:
+                self.temperature = "Unknown"
 
 
     def write_output(self):
@@ -69,8 +85,11 @@ class OsRules():
                 alert.sound_alert(indv_alert)
         else:
             alert.sound_alert("Alert 0 - OS Rules everythign alright")
-        #Save rule_data
+        #Send tempt data if necessary
+        if usual_data.MONITOR_TEMP:
+            alert.sound_alert("Temps at: "+str(self.temperature))
         '''
+        #Save rule_data
         data = json.dumps(self.rule_data)
         with open(self.rule_data_location, 'w') as file:
             file.write(data)'''
