@@ -21,11 +21,11 @@ def test_nginx_rules():
         #TODO: IF too many aggregate alerts
         if len(alerts)>0:
             for indv_alert in alerts:
-                alert.sound_alert(indv_alert)
+                alert.sound_alert(usual_data.MACHINE_NAME+": "+indv_alert)
         else:
-            alert.sound_alert("Alert 0 - Nginx Rules everythign alright")
+            alert.sound_alert(usual_data.MACHINE_NAME+": "+"Alert 0 - Nginx Rules everythign alright")
     else:
-        alert.sound_alert("Nginx file does not exist")
+        alert.sound_alert(usual_data.MACHINE_NAME+": "+"Nginx file does not exist")
 
 def reset_seen_ips_count():
     ins = nginxRules.NginxRules([])
@@ -38,16 +38,16 @@ def reset_banned_ips():
     ins.write_output()
 
 def test_configuration():
-    alert.sound_alert("This is a test, Am I working?")
+    alert.sound_alert(usual_data.MACHINE_NAME+": "+"This is a test, Am I working?")
     current_logs_location = get_logs_location(relative_nginx_logs_location)
     if os.path.exists(current_logs_location):
         res = utils.parse_nginx_file(current_logs_location)
         try:
             ins = nginxRules.NginxRules(res)
         except:
-            print("Something doesnt work in nginx rules")
+            print(usual_data.MACHINE_NAME+": "+"Something doesnt work in nginx rules")
     else:
-        alert.sound_alert("Nginx file does not exist")
+        alert.sound_alert(usual_data.MACHINE_NAME+": "+"Nginx file does not exist")
     
 def ban_current_ips():
     current_logs_location = get_logs_location(relative_nginx_logs_location)
@@ -55,14 +55,14 @@ def ban_current_ips():
         res = utils.parse_nginx_file(current_logs_location)
         nginxRules.NginxRules(res).super_ban() #Add file location if custom needed
     else:
-        alert.sound_alert("Nginx file does not exist")
+        alert.sound_alert(usual_data.MACHINE_NAME+": "+"Nginx file does not exist")
 
 def clean_logs():
     current_logs_location = get_logs_location(relative_nginx_logs_location)
     if os.path.exists(current_logs_location):
         open(current_logs_location, "w").close() #This will clear file
     else:
-        alert.sound_alert("Nginx file does not exist")
+        alert.sound_alert(usual_data.MACHINE_NAME+": "+"Nginx file does not exist")
 
 def get_logs_location(relative_location):
     if usual_data.DEBUG:

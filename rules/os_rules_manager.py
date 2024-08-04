@@ -4,6 +4,7 @@ sys.path.append("..")
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+import usual_data
 import rules.osRules as osRules
 import utils.alert as alert
 
@@ -12,7 +13,7 @@ def test_os_rules():
     ins.try_rules()
 
 def test_configuration():
-    alert.sound_alert("This is a test from os rules, Am I working?")
+    alert.sound_alert(usual_data.MACHINE_NAME+": "+"This is a test from os rules, Am I working?")
     try:
         ins = osRules.OsRules()
     except:

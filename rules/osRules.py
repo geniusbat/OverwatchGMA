@@ -82,12 +82,12 @@ class OsRules():
         #Sound alerts
         if len(self.alerts)>0:
             for indv_alert in self.alerts:
-                alert.sound_alert(indv_alert)
+                alert.sound_alert(usual_data.MACHINE_NAME+": "+indv_alert)
         else:
-            alert.sound_alert("Alert 0 - OS Rules everythign alright")
+            alert.sound_alert(usual_data.MACHINE_NAME+": "+"Alert 0 - OS Rules everythign alright")
         #Send tempt data if necessary
         if usual_data.MONITOR_TEMP:
-            alert.sound_alert("Temps at: "+str(self.temperature))
+            alert.sound_alert("Temps of "+usual_data.MACHINE_NAME+" at: "+str(self.temperature))
         '''
         #Save rule_data
         data = json.dumps(self.rule_data)
