@@ -1,12 +1,7 @@
 .venv
 private.txt
-telegramCredentials
-nginx_rule_data
 __pycache__/*
 /__pycache__
 /__pycache__
 __pycache__
-__pycache__/nginxRules.cpython-39.pyc
-__pycache__/alert.cpython-39.pyc
-__pycache__/utils.cpython-39.pyc
-ips_to_ban
+**/__pycache__/**
