@@ -1,0 +1,5 @@
+SEND USING NMAP
+ncat -C --ssl <IP> <PORT> -v -q0.5
+
+SEND USING SSL
+openssl s_client -connect <IP>:<PORT> -cert <cert>  -key <key>  -brief -no-interactive

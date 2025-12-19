@@ -1,0 +1,8 @@
+ubuntu:
+  commands:
+    uname:
+      user: root
+      args: -a
+
+    disabled_command:
+      disabled: true
