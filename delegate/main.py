@@ -1,68 +1,52 @@
-
-
+import time, traceback, threading, queue, datetime, json
 #Add root path to import modules
 import sys
 import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
-import usual_data #Load usual_data
-import threading
-import queue
+import usual_data #Load usual_data 
 
-from utils import utils
 
+from utils import utils, exceptions, logger
+from utils.structs import HostData, CommandData
 from client import Client
 from run_commands import run_command
 
-if __name__ == "__main__":
-    config = utils.load_yaml("/home/phobos/Documents/Programing/OverwatchGMA/delegate/delegate_config.yml")
+#TODO: Handle the same command multiple times (so they can have different params)
 
-    '''
-    cl = Client("0.0.0.0", 8443, "/home/phobos/Documents/Programing/OverwatchGMA/master/certs/cert.pem", "/home/phobos/Documents/Programing/OverwatchGMA/master/certs/key.pem")
-    cl.connect_send("Hola mundo")
-    cl.close()
-    '''
-    tags :list[str] = config["tags"]
-    ignore_tag_commands :list[str] = []
-    if not config["ignore_tag_commands"] is None:
-        ignore_tag_commands = config["ignore_tag_commands"]
-    hostname :str = config["hostname"]
-    commands_directory :str = config["commands_directory"]
-    if not os.path.exists(commands_directory):
-        raise FileNotFoundError("Commands directory not found at: {}".format(commands_directory))
-    commands :dict[str:dict] = config["commands"]
-    #Add tag commands while ignoring those set to be ignored by host
-    for tag in tags:
-        if tag in usual_data.tags: 
-            tag_commands = usual_data.tags[tag]["commands"]
-            for command_key in tag_commands.keys():
-                if not command_key in ignore_tag_commands and not command_key in commands:
-                    commands[command_key] = tag_commands[command_key]
-    #print(commands)
+#Partially deprecated handle_specific_commands
+def handle_all_commands(host:HostData) -> (dict,dict):
+    #Create queues
     output_queue = queue.Queue()
+    error_queue = queue.Queue()
     threads = []
-    for command_key in commands.keys():
-        command_info :dict = commands[command_key]
-        #Skip command if disabled
-        if "disabled" in command_info and command_info["disabled"]:
-            continue
-        #Check that command exists
-        import datetime
-        then = datetime.datetime.now()
-        command_path = os.path.join(commands_directory, command_key)
-        if os.path.exists(command_path):
-            user = None
-            parameters = []
-            if "user" in command_info:
-                user = command_info["user"]
-            if "parameters" in command_info:
-                parameters = command_info["parameters"]
-            t = threading.Thread(target=run_command,kwargs={"command_path":command_path,"user":user,"parameters":parameters,"q":output_queue})
-            threads.append(t)
-            #status_code, message = run_command(command_path, user=user, parameters=parameters)
-            #output += "{}[{}]:::{}".format(command_key,status_code,message)
-        else:
-            raise FileNotFoundError("Command not found at: {}".format(command_path))
+
+    command : CommandData
+    #Run commands in separate threads
+    for command_key,command in host.commands.items():
+        if not command.disabled:
+            command_path = command.get_path(host.commands_directory)
+            #Check command exists
+            if os.path.exists(command_path):
+                try: 
+                    t = command.create_thread(run_command,command_path,output_queue,error_queue)
+                except usual_data.non_blocking_exceptions as e:
+                    traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+                    logger.warning("Exception thrown for {}: {}\n{}".format(command_key,e,traceback_str))
+                threads.append(t)
+            #Command not found
+            else:
+                #CommandNotFound exception is set as non-blocking
+                if exceptions.CommandNotFound in usual_data.non_blocking_exceptions:
+                    logger.warning("{}[{}]:::{}".format(command_key,"ERROR","Command not found at: {}".format(command_path)))
+                    error_queue.put({
+                        "command": command_key,
+                        "returncode": 127, 
+                        "stderr": "Command not found at: {}".format(command_path)
+                    })
+                #CommandNotFound exception is set as blocking
+                else:
+                    raise exceptions.CommandNotFound(command_path) 
     
     #Execute threads
     for t in threads:
@@ -70,10 +54,134 @@ if __name__ == "__main__":
     # Wait for all threads to finish
     for t in threads:
         t.join()
-    result = ""
+    #Get results
+    result = {}
     while not output_queue.empty():
-        command,status_code,message = output_queue.get()
-        result += "{}[{}]:::{}".format(command,status_code,message)
-    now = datetime.datetime.now()
-    print(result)
-    #print(run_command("/home/phobos/Documents/Programing/OverwatchGMA/commands/just_ls",user=1000,parameters=["/home"])[1])
+        output = output_queue.get()
+        result[output["command"]] = output
+    errors = {}
+    #Log errors
+    while not error_queue.empty():
+        single_error = error_queue.get()
+        logger.warning(single_error)
+        errors[single_error["command"]] = single_error
+
+    return result, errors
+
+def handle_specific_commands(host:HostData, commands_queued:list[str]) -> (dict,dict):
+    #Create queues
+    output_queue = queue.Queue()
+    error_queue = queue.Queue()
+    threads = []
+
+    command : CommandData
+    #Create commands in separate threads
+    for command_key in commands_queued:
+        command = host.commands[command_key]
+        if not command.disabled:
+            command_path = command.get_path(host.commands_directory)
+            #Check if command exists
+            if os.path.exists(command_path):
+                try: 
+                    #Create thread
+                    t = command.create_thread(run_command,command_path,output_queue,error_queue)
+                    threads.append(t)
+                #Non-blocking exception raised, log and continue with following commands 
+                except usual_data.non_blocking_exceptions as e:
+                    traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+                    logger.warning("Exception thrown for {}: {}\n".format(command_key,e, traceback_str))
+            #Command not found
+            else:
+                #CommandNotFound exception is set as non-blocking
+                if exceptions.CommandNotFound in usual_data.non_blocking_exceptions:
+                    logger.warning("{}[{}]:::{}".format(command_key,"ERROR","Command not found at: {}".format(command_path)))
+                    error_queue.put({
+                        "command": command_key,
+                        "returncode": 127, 
+                        "stderr": "Command not found at: {}".format(command_path)
+                    })
+                #CommandNotFound exception is set as blocking
+                else:
+                    raise exceptions.CommandNotFound(command_path) 
+    
+    #Execute threads
+    for t in threads:
+        t.start()
+    # Wait for all threads to finish
+    for t in threads:
+        t.join()
+    #Get results
+    result = {}
+    while not output_queue.empty():
+        output = output_queue.get()
+        result[output["command"]] = output
+    #Get thread errors
+    errors = {}
+    #Log errors
+    while not error_queue.empty():
+        single_error = error_queue.get()
+        logger.warning(single_error)
+        errors[single_error["command"]] = single_error
+
+    return result, errors
+
+if __name__ == "__main__":
+    try:
+        logger.debug("Starting delegate service")
+        #Get delegate_config file path
+        config_dir = os.getenv("OVGMA_DELEGATE_CONFIG", "delegate_config.yml")
+
+        #Load host data with tag commands
+        host = HostData().loadNhandle("/home/phobos/Documents/Programing/OverwatchGMA/delegate/delegate_config.yml", usual_data.tags)
+        
+        #Get biggest frequency of all enabled commands
+        biggest_frequency = 1
+        for command_key, command_value in host.commands.items():
+            if command_value.frequency > biggest_frequency and not command_value.disabled:
+                biggest_frequency = command_value.frequency
+        
+        #Main loop, timed at 1 minutes to run all required commands and send results to master 
+        time_counter :int = 0
+        while True:
+            #Get commands to be executed
+            commands_queued = []
+            for command_key, command_value in host.commands.items():
+                if time_counter % command_value.frequency == 0:
+                    commands_queued.append(command_key)
+            #Get current time
+            utc_timestamp = datetime.datetime.now(datetime.UTC).timestamp()
+            logger.debug("At time {} running commands: {}".format(time_counter, commands_queued))
+            #Get result and errors
+            #TODO: in delegate_config define if errors should be sent to master
+            result, errors = handle_specific_commands(host, commands_queued)
+            #print(time_counter)
+            #print(result)#,"\n", errors)
+            #From results and such create a packet to be sent to master
+            packet = {"hostname":host.hostname,"utcstamp":utc_timestamp, "results":result}
+            #TODO: Add errors to packet if needed
+            
+            #Connect to master and send packet
+            try:
+                client = Client(usual_data.MASTER_IP,usual_data.COMS_PORT,host.cert_file,host.key_file)
+                client.connect_send(json.dumps(packet))
+                logger.debug("Connection to master correct and sent data")
+            #Handle connection refused
+            except ConnectionRefusedError as e:
+                traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+                logger.error("Connection refused when sending to master:\n{}".format(traceback_str))
+            
+            #Finishing loop
+            time_counter += 1
+            #Reset time_counter if surpassing biggest frequency
+            if time_counter>=biggest_frequency:
+                time_counter = 0
+            #Sleep for less if in debug
+            if usual_data.DEBUG:
+                time.sleep(1)
+            else:
+                time.sleep(60)
+    #Catch all exceptions and log them
+    except Exception as e:
+        traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+        logger.error("{}\n{}".format(e,traceback_str))
+        sys.exit(1)
