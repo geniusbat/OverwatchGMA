@@ -25,12 +25,14 @@ def store_command_message(connection, status:db.COMMAND_TYPE, timestamp:int, hos
             INSERT INTO active_controls(host,timestamp,command_name,returncode,message) 
             VALUES(?,?,?,?,?);
         '''
-    else:
-        #TODO: Create master errors
+    elif status == db.COMMAND_TYPE.DELEGATE_ERROR:
         insert_query = '''
             INSERT INTO delegate_errors(host,timestamp,command_name,returncode,message) 
             VALUES(?,?,?,?,?);
         '''
+    elif status == db.COMMAND_TYPE.MASTER_ERROR: #TODO: Create MASTER_ERROR table
+        logger.debug("db_commands still requires code for MASTER_ERROR")
+        return
     cursor : sqlite3.Cursor = connection.cursor()
     cursor.execute(insert_query, (
             host, timestamp, command_name, returncode, message

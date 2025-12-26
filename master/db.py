@@ -7,15 +7,49 @@ import usual_data
 
 class COMMAND_TYPE(Enum):
     DELEGATE = 0
-    MASTER = 1
-    ERROR = 2
+    DELEGATE_ERROR = 1
+    MASTER = 2
+    MASTER_ERROR = 3
 
 def get_connection():
     connection = sqlite3.connect(usual_data.DB_DIR)
     return connection
 
-def initialize_table_passive_controls(cursor):
+def initialize_table_delegate_controls(cursor):
     query = '''CREATE TABLE IF NOT EXISTS passive_controls (
+        id INTEGER PRIMARY KEY,
+        host VARCHAR(16),
+        timestamp INTEGER,
+        command_name VARCHAR(25),
+        returncode INTEGER,
+        message TEXT
+    );'''
+    cursor.execute(query)
+
+def initialize_table_delegate_errors(cursor):
+    query = '''CREATE TABLE IF NOT EXISTS delegate_errors (
+        id INTEGER PRIMARY KEY,
+        host VARCHAR(16),
+        timestamp INTEGER,
+        command_name VARCHAR(25),
+        returncode INTEGER,
+        message TEXT
+    );'''
+    cursor.execute(query)
+
+def initialize_table_master_controls(cursor):
+    query = '''CREATE TABLE IF NOT EXISTS master_controls (
+        id INTEGER PRIMARY KEY,
+        host VARCHAR(16),
+        timestamp INTEGER,
+        command_name VARCHAR(25),
+        returncode INTEGER,
+        message TEXT
+    );'''
+    cursor.execute(query)
+
+def initialize_table_master_errors(cursor):
+    query = '''CREATE TABLE IF NOT EXISTS master_errors (
         id INTEGER PRIMARY KEY,
         host VARCHAR(16),
         timestamp INTEGER,
@@ -38,7 +72,14 @@ def initialize_table_hosts_registry(cursor):
 
 def initialize_db(connection):
     cursor :sqlite3.Cursor = connection.cursor()
-    initialize_table_passive_controls(cursor)
-    initialize_table_hosts_registry(cursor)
+    initialize_table_delegate_controls(cursor)
+    initialize_table_delegate_errors(cursor)
+    initialize_table_master_controls(cursor)
+    initialize_table_master_errors(cursor)
     connection.commit()
     return connection
+
+if __name__ == "__main__":
+    with get_connection() as conn:
+        initialize_db(conn)
+        print("Finished initializing database")

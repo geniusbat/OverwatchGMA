@@ -59,12 +59,13 @@ class HostData():
     commands : dict[str:CommandData]
     cert_file : str
     key_file : str
+    send_errors : bool
 
 
     def load(self, host_path:str):
         if os.path.exists(host_path):
             config = load_yaml("/home/phobos/Documents/Programing/OverwatchGMA/delegate/delegate_config.yml")
-            return self.init(config["hostname"],config.get("tags", []),config["commands_directory"],config["commands"],config["log_file"],config["cert_file"],config["key_file"],config.get("ignore_tag_commands", []))
+            return self.init(config["hostname"],config.get("tags", []),config["send_errors"],config["commands_directory"],config["commands"],config["log_file"],config["cert_file"],config["key_file"],config.get("ignore_tag_commands", []))
         else:
             raise FileNotFoundError("Could not find config file at: {}".format(host_path))
 
@@ -75,9 +76,10 @@ class HostData():
         return self
 
     #Load the class, it will not inherently handle commands inherited from tags, for that you need to use handle_tag_commands
-    def init(self, hostname:str, tags:list[str], commands_directory:str, commands_raw:dict[str:dict],log_file:str, cert_file:str, key_file:str, ignore_tag_commands:list[str]=[]):
+    def init(self, hostname:str, tags:list[str], commands_directory:str, send_errors:bool, commands_raw:dict[str:dict],log_file:str, cert_file:str, key_file:str, ignore_tag_commands:list[str]=[]):
         self.hostname = hostname
         self.tags = tags
+        self.send_errors = send_errors
         self.commands_directory = commands_directory
         self.ignore_tag_commands = ignore_tag_commands
         self.log_file = log_file

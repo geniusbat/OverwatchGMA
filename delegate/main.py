@@ -12,61 +12,6 @@ from utils.structs import HostData, CommandData
 from client import Client
 from run_commands import run_command
 
-#TODO: Handle the same command multiple times (so they can have different params)
-
-#Partially deprecated handle_specific_commands
-def handle_all_commands(host:HostData) -> (dict,dict):
-    #Create queues
-    output_queue = queue.Queue()
-    error_queue = queue.Queue()
-    threads = []
-
-    command : CommandData
-    #Run commands in separate threads
-    for command_key,command in host.commands.items():
-        if not command.disabled:
-            command_path = command.get_path(host.commands_directory)
-            #Check command exists
-            if os.path.exists(command_path):
-                try: 
-                    t = command.create_thread(run_command,host.commands_directory,output_queue,error_queue)
-                except usual_data.non_blocking_exceptions as e:
-                    traceback_str = ''.join(traceback.format_tb(e.__traceback__))
-                    logger.warning("Exception thrown for {}: {}\n{}".format(command_key,e,traceback_str))
-                threads.append(t)
-            #Command not found
-            else:
-                #CommandNotFound exception is set as non-blocking
-                if exceptions.CommandNotFound in usual_data.non_blocking_exceptions:
-                    logger.warning("{}[{}]:::{}".format(command_key,"ERROR","Command not found at: {}".format(command_path)))
-                    error_queue.put({
-                        "command": command_key,
-                        "returncode": 127, 
-                        "stderr": "Command not found at: {}".format(command_path)
-                    })
-                #CommandNotFound exception is set as blocking
-                else:
-                    raise exceptions.CommandNotFound(command_path) 
-    
-    #Execute threads
-    for t in threads:
-        t.start()
-    # Wait for all threads to finish
-    for t in threads:
-        t.join()
-    #Get results
-    result = {}
-    while not output_queue.empty():
-        output = output_queue.get()
-        result[output["command"]] = output
-    errors = {}
-    #Log errors
-    while not error_queue.empty():
-        single_error = error_queue.get()
-        logger.warning(single_error)
-        errors[single_error["command"]] = single_error
-
-    return result, errors
 
 def handle_specific_commands(host:HostData, commands_queued:list[str]) -> (dict,dict):
     #Create queues
@@ -153,13 +98,14 @@ if __name__ == "__main__":
             logger.debug("At time {} running commands: {}".format(time_counter, commands_queued))
             #Get result and errors
             result, errors = handle_specific_commands(host, commands_queued)
-            #TODO: Define packet type
             #From results and such create a packet to be sent to master
-            packet = {"hostname":host.hostname,"utcstamp":utc_timestamp, "results":result}
+            packet = {"type":usual_data.DELEGATE_MESSAGE_TYPE.RESULTS.value,"hostname":host.hostname,"utcstamp":utc_timestamp, "results":result}
             #Log errors
             for error in errors:
                 logger.error("Error when executing thread. Message: {}\n".format(error))
-            #TODO: Add errors to packet if needed based on "send_errors"
+            if HostData.send_errors:
+                if len(errors)>0:
+                    packet["errors"] = errors
             #Connect to master and send packet
             try:
                 client = Client(usual_data.MASTER_IP,usual_data.COMS_PORT,host.cert_file,host.key_file)

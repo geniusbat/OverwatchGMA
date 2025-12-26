@@ -11,3 +11,6 @@ class NotEnoughClearanceError(PermissionError):
 
 class DelegateConfigInvalidError(UserWarning):
     pass
+
+class MessageWithoutType(UserWarning):
+    pass

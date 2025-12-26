@@ -20,12 +20,9 @@ def get_log_handler() -> logging.Logger:
     aux_handlers = [logging.StreamHandler()]
     #Get file to log only if needed
     if FILE_HANDLER:
-        #log_path is defined as string
-        if log_path is str:
-            if os.path.exists(log_path):
-                aux_handlers.append(logging.FileHandler(log_path))
-            else:
-                raise FileNotFoundError("log_path was defined but it does not exist: {}".format(log_path))
+        #log_path is defined
+        if not log_path is None:
+            aux_handlers.append(logging.FileHandler(log_path))
         #log_path not defined. Get config direction from config_file which is defined in an enviroment variable
         elif log_path is None:
             config_dir = os.getenv("OVGMA_CONFIG_PATH", None)
@@ -34,7 +31,6 @@ def get_log_handler() -> logging.Logger:
             #Load logging file direction
             log_file = utils.load_yaml(config_dir)["log_file"]
             aux_handlers.append(logging.FileHandler(log_file))
-
 
     #Set logging config
     logging.basicConfig(level=LOG_LEVEL,

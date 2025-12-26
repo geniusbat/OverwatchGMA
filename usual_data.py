@@ -30,7 +30,8 @@ tags = {
 
 non_blocking_exceptions = (
     exceptions.NotEnoughClearanceError,
-    ConnectionResetError
+    ConnectionResetError,
+    exceptions.MessageWithoutType
 )
 
 class DELEGATE_MESSAGE_TYPE(Enum):
