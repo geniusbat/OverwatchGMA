@@ -1,3 +1,6 @@
+SPECIFY DELEGATE_CONFIG
+set env variable "OVGMA_DELEGATE_CONFIG"
+
 SEND USING NMAP
 ncat -C --ssl <IP> <PORT> -v -q0.5
 

@@ -29,7 +29,7 @@ def handle_all_commands(host:HostData) -> (dict,dict):
             #Check command exists
             if os.path.exists(command_path):
                 try: 
-                    t = command.create_thread(run_command,command_path,output_queue,error_queue)
+                    t = command.create_thread(run_command,host.commands_directory,output_queue,error_queue)
                 except usual_data.non_blocking_exceptions as e:
                     traceback_str = ''.join(traceback.format_tb(e.__traceback__))
                     logger.warning("Exception thrown for {}: {}\n{}".format(command_key,e,traceback_str))
@@ -84,7 +84,7 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> (dict,
             if os.path.exists(command_path):
                 try: 
                     #Create thread
-                    t = command.create_thread(run_command,command_path,output_queue,error_queue)
+                    t = command.create_thread(run_command,host.commands_directory,output_queue,error_queue)
                     threads.append(t)
                 #Non-blocking exception raised, log and continue with following commands 
                 except usual_data.non_blocking_exceptions as e:
@@ -96,7 +96,7 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> (dict,
                 if exceptions.CommandNotFound in usual_data.non_blocking_exceptions:
                     logger.warning("{}[{}]:::{}".format(command_key,"ERROR","Command not found at: {}".format(command_path)))
                     error_queue.put({
-                        "command": command_key,
+                        "command_name": command_key,
                         "returncode": 127, 
                         "stderr": "Command not found at: {}".format(command_path)
                     })
@@ -114,7 +114,7 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> (dict,
     result = {}
     while not output_queue.empty():
         output = output_queue.get()
-        result[output["command"]] = output
+        result[output["command_name"]] = output
     #Get thread errors
     errors = {}
     #Log errors
@@ -136,7 +136,7 @@ if __name__ == "__main__":
         
         #Get biggest frequency of all enabled commands
         biggest_frequency = 1
-        for command_key, command_value in host.commands.items():
+        for command_key,command_value  in host.commands.items():
             if command_value.frequency > biggest_frequency and not command_value.disabled:
                 biggest_frequency = command_value.frequency
         
@@ -145,25 +145,26 @@ if __name__ == "__main__":
         while True:
             #Get commands to be executed
             commands_queued = []
-            for command_key, command_value in host.commands.items():
+            for command_key,command_value  in host.commands.items():
                 if time_counter % command_value.frequency == 0:
                     commands_queued.append(command_key)
             #Get current time
             utc_timestamp = datetime.datetime.now(datetime.UTC).timestamp()
             logger.debug("At time {} running commands: {}".format(time_counter, commands_queued))
             #Get result and errors
-            #TODO: in delegate_config define if errors should be sent to master
             result, errors = handle_specific_commands(host, commands_queued)
-            #print(time_counter)
-            #print(result)#,"\n", errors)
+            #TODO: Define packet type
             #From results and such create a packet to be sent to master
             packet = {"hostname":host.hostname,"utcstamp":utc_timestamp, "results":result}
-            #TODO: Add errors to packet if needed
-            
+            #Log errors
+            for error in errors:
+                logger.error("Error when executing thread. Message: {}\n".format(error))
+            #TODO: Add errors to packet if needed based on "send_errors"
             #Connect to master and send packet
             try:
                 client = Client(usual_data.MASTER_IP,usual_data.COMS_PORT,host.cert_file,host.key_file)
                 client.connect_send(json.dumps(packet))
+                client.close()
                 logger.debug("Connection to master correct and sent data")
             #Handle connection refused
             except ConnectionRefusedError as e:
@@ -177,7 +178,7 @@ if __name__ == "__main__":
                 time_counter = 0
             #Sleep for less if in debug
             if usual_data.DEBUG:
-                time.sleep(1)
+                time.sleep(2.5)
             else:
                 time.sleep(60)
     #Catch all exceptions and log them

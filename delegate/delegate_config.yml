@@ -1,10 +1,28 @@
-phobos:
-  tags: ubuntu
-  commands:
-    just_ls:
-      frequency: 1
-      user: phobos
+hostname: phobos
+commands_directory: /home/phobos/Documents/Programing/OverwatchGMA/commands
+log_file: /home/phobos/Documents/Programing/OverwatchGMA/delegate/phobos_delegate.log
+cert_file: /home/phobos/Documents/Programing/OverwatchGMA/master/certs/cert.pem
+key_file: /home/phobos/Documents/Programing/OverwatchGMA/master/certs/key.pem
+send_errors: false
+tags: 
+  - ubuntu
+#ignore_tag_commands:
+#  - 
+commands:
+  just_ls:
+    command: just_ls
+    parameters: 
+      - /home/phobos/Downloads
+    frequency: 1
+    user: 1000
+    disabled: true
 
-    get_cpu:
-      frequency: 1
-      disabled: true
+  get_cpu:
+    command: get_cpu
+    #user: 0
+    frequency: 1
+
+  get_cpu2:
+    command: get_cpu
+    #user: 0
+    frequency: 1

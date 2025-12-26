@@ -11,13 +11,15 @@ from .utils import load_yaml
 from . import exceptions, logger
 
 class CommandData():
+    command_name : str
     command : str
     parameters : list[str]
     frequency : int
     user : int
     disabled : bool
 
-    def __init__(self, command:str, parameters:list[str], frequency:int, user:int=1000, disabled:bool=False):
+    def __init__(self, command_name: str, command:str, parameters:list[str], frequency:int, user:int=1000, disabled:bool=False):
+        self.command_name = command_name
         self.command = command
         self.parameters = parameters
         self.frequency = frequency #TODO: Maybe not needed here
@@ -34,9 +36,10 @@ class CommandData():
         return os.path.join(dir_path,self.command)
 
 
-    def create_thread(self,run_func,command_path,output_queue=None,error_queue=None):
+    def create_thread(self,run_func,commands_dir:str, output_queue=None, error_queue=None):
+        command_path = os.path.join(commands_dir,self.command)
         if os.path.exists(command_path):
-            t = threading.Thread(target=run_func,kwargs={"command_path":command_path,"user":self.user,"parameters":self.parameters,"q_output":output_queue,"q_error":error_queue})
+            t = threading.Thread(target=run_func,kwargs={"command_name":self.command_name,"command_path":command_path,"user":self.user,"parameters":self.parameters,"q_output":output_queue,"q_error":error_queue})
             return t
         else:
             raise exceptions.CommandNotFound(command_path)
@@ -45,7 +48,7 @@ class CommandData():
         dis = ""
         if self.disabled:
             dis = "(disabled)"
-        return "{}{} as {} {}".format(self.command,dis,self.user,self.parameters)
+        return "{}{} as {} {}".format(self.command_name,dis,self.user,self.parameters)
 
 class HostData():
     hostname : str
@@ -80,9 +83,9 @@ class HostData():
         self.log_file = log_file
         self.cert_file = cert_file
         self.key_file = key_file
+        self.commands = {}
         if ignore_tag_commands is None:
             self.ignore_tag_commands = []
-        commands: dict[str:CommandData] = {}
         raw_command : dict
         #Generate commands
         for key_raw, raw_command in commands_raw.items():
@@ -91,14 +94,12 @@ class HostData():
                 if not "frequency" in raw_command:
                     raise KeyError("frequency key could not be found in command: {} {}".format(key_raw,raw_command))
                 frequency = raw_command["frequency"]
+                real_command = raw_command["command"]
                 user = raw_command.get("user",1000)
                 disabled = raw_command.get("disabled",False)
-                c = CommandData(key_raw, parameters, frequency, user, disabled)
-                commands[key_raw] = c
+                self.add_command(key_raw, real_command, parameters, frequency, user, disabled)
             except usual_data.non_blocking_exceptions as e:
                 logger.warning("Exception thrown: {}".format(e))
-
-        self.commands = commands
 
         return self
 
@@ -116,29 +117,34 @@ class HostData():
                             if not "frequency" in tag_commands[command_key]:
                                 raise KeyError("frequency key could not be found in command: {}".format(tag_commands[command_key]))
                             frequency = tag_commands[command_key]["frequency"]
+                            real_command = tag_commands[command_key]["command"]
                             user = tag_commands[command_key].get("user",1000)
                             disabled = tag_commands[command_key].get("disabled",False)
-                            c = CommandData(command_key, parameters, frequency, user, disabled)
-                            self.commands[command_key] = c
+                            self.add_command(command_key, real_command, parameters, frequency, user, disabled)
                         except usual_data.non_blocking_exceptions as e:
                             logger.warning("Exception thrown: {}".format(e))
 
-    def add_command(self,command:str, parameters:list[str], frequency:int, user:int=1000, disabled:bool=False):
+    def add_command(self, command_name:str, command:str, parameters:list[str], frequency:int, user:int=1000, disabled:bool=False):
         #Do not add if already inside
-        if not command in self.commands.keys():
+        if not command_name in self.commands:
             try:
-                c = CommandData(command, parameters, frequency, user, disabled)
-                self.commands[command] = c
+                c = CommandData(command_name, command, parameters, frequency, user, disabled)
+                self.commands[command_name] = c
+                return True
             except usual_data.non_blocking_exceptions as e:
                 logger.warning("Exception thrown: {}".format(e))
+            return False
 
     def append_command(self,command:CommandData):
-        if not command.command in self.commands.keys():
-            self.commands[command] = command
+        if not command.command_name in self.commands:
+            self.commands[command_name] = c
+            return True
+        return False
 
     def __str__(self):
         command_str = ""
-        for command in self.commands.values():
-            command_str += "{"+str(command)+"},"
+        for command_list in self.commands.values():
+            for command in command_list:
+                command_str += "{"+str(command)+"},"
         command_str = command_str[:-1]
         return "{} {}:{}".format(self.hostname,self.tags,command_str)

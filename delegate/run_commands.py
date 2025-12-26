@@ -10,7 +10,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 from utils import exceptions
 
 
-def run_command(command_path:str,user:str=None, parameters:list=[],q_output:queue.Queue=None,q_error:queue.Queue=None):
+def run_command(command_name:str,command_path:str,user:str=None, parameters:list=[],q_output:queue.Queue=None,q_error:queue.Queue=None):
     #Set default user if None specified
     if user is None:
         user = 1000
@@ -26,7 +26,7 @@ def run_command(command_path:str,user:str=None, parameters:list=[],q_output:queu
         #Write process stdout to the output queue
         if q_output:
             result = {
-                "command": os.path.split(command_path)[-1],
+                "command_name": os.path.split(command_name)[-1],
                 "returncode": process.returncode, 
                 "stdout": stdout.strip()
             }
@@ -35,7 +35,7 @@ def run_command(command_path:str,user:str=None, parameters:list=[],q_output:queu
         if q_error:
             if process.returncode > 0:
                 error = {
-                    "command": os.path.split(command_path)[-1],
+                    "command_name": os.path.split(command_name)[-1],
                     "returncode": process.returncode, 
                     "stderr": stderr.strip()
                 }
