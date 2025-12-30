@@ -15,7 +15,7 @@ ssocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
 #Generate context
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 #Load certs. TODO: Do it dynamically
-context.load_cert_chain(certfile="/home/phobos/Documents/Programing/OverwatchGMA/master/certs/cert.pem", keyfile="/home/phobos/Documents/Programing/OverwatchGMA/master/certs/key.pem")
+context.load_cert_chain(certfile="/home/zeus/Projects/Programacion/OverwatchGMA/master/certs/cert.pem", keyfile="/home/zeus/Projects/Programacion/OverwatchGMA/master/certs/key.pem")
 context.set_ciphers("@SECLEVEL=1:ALL")
 #Configure logger
 #For testing do not write to disk

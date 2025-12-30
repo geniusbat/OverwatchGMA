@@ -31,7 +31,7 @@ def store_command_message(connection, status:db.COMMAND_TYPE, timestamp:int, hos
             VALUES(?,?,?,?,?);
         '''
     elif status == db.COMMAND_TYPE.MASTER_ERROR: #TODO: Create MASTER_ERROR table
-        logger.debug("db_commands still requires code for MASTER_ERROR")
+        logger.error("db_commands still requires code for MASTER_ERROR")
         return
     cursor : sqlite3.Cursor = connection.cursor()
     cursor.execute(insert_query, (

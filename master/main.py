@@ -17,4 +17,4 @@ if __name__ == "__main__":
     db.initialize_db(connection)
     import datetime
     #db_commands.store_command_message(connection, db.COMMAND_TYPE.DELEGATE, datetime.datetime.now(datetime.UTC), "test_host", "test_command", 0, "Hola Mundo")
-    print(db_commands.hosts_registry_check_for_incongruent_ips(connection))
+    print(db_commands.get_table(connection, "hosts_registry"))

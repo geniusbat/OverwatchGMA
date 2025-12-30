@@ -64,10 +64,10 @@ class HostData():
 
     def load(self, host_path:str):
         if os.path.exists(host_path):
-            config = load_yaml("/home/phobos/Documents/Programing/OverwatchGMA/delegate/delegate_config.yml")
-            return self.init(config["hostname"],config.get("tags", []),config["send_errors"],config["commands_directory"],config["commands"],config["log_file"],config["cert_file"],config["key_file"],config.get("ignore_tag_commands", []))
+            config = load_yaml(host_path)
+            return self.init(config["hostname"],config.get("tags", []),config["commands_directory"],config["send_errors"],config["commands"],config["log_file"],config["cert_file"],config["key_file"],config.get("ignore_tag_commands", []))
         else:
-            raise FileNotFoundError("Could not find config file at: {}".format(host_path))
+            raise FileNotFoundError("Could not find config file at: "+host_path)
 
     #Load and also handle tag commands
     def loadNhandle(self, host_path:str, tags_info:dict):

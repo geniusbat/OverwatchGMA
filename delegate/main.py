@@ -1,4 +1,5 @@
 import time, traceback, threading, queue, datetime, json
+from typing import Tuple
 #Add root path to import modules
 import sys
 import os
@@ -13,7 +14,8 @@ from client import Client
 from run_commands import run_command
 
 
-def handle_specific_commands(host:HostData, commands_queued:list[str]) -> (dict,dict):
+
+def handle_specific_commands(host:HostData, commands_queued:list[str]) -> Tuple[dict, dict]:
     #Create queues
     output_queue = queue.Queue()
     error_queue = queue.Queue()
@@ -72,13 +74,17 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> (dict,
 
 if __name__ == "__main__":
     try:
-        logger.debug("Starting delegate service")
         #Get delegate_config file path
-        config_dir = os.getenv("OVGMA_DELEGATE_CONFIG", "delegate_config.yml")
-
+        config_dir = os.getenv("OVGMA_CONFIG_PATH", "delegate_config.yml")
         #Load host data with tag commands
-        host = HostData().loadNhandle("/home/phobos/Documents/Programing/OverwatchGMA/delegate/delegate_config.yml", usual_data.tags)
-        
+        host = HostData().loadNhandle(config_dir, usual_data.tags)
+        #Configure logger
+        if len(host.log_file) > 0:
+           logger.FILE_HANDLER = True
+           logger.log_path = host.log_file
+
+        logger.debug("Correctly loaded config, starting delegate service")
+
         #Get biggest frequency of all enabled commands
         biggest_frequency = 1
         for command_key,command_value  in host.commands.items():
@@ -103,7 +109,7 @@ if __name__ == "__main__":
             #Log errors
             for error in errors:
                 logger.error("Error when executing thread. Message: {}\n".format(error))
-            if HostData.send_errors:
+            if host.send_errors:
                 if len(errors)>0:
                     packet["errors"] = errors
             #Connect to master and send packet

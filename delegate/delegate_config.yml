@@ -1,8 +1,8 @@
 hostname: phobos
-commands_directory: /home/phobos/Documents/Programing/OverwatchGMA/commands
-log_file: /home/phobos/Documents/Programing/OverwatchGMA/delegate/phobos_delegate.log
-cert_file: /home/phobos/Documents/Programing/OverwatchGMA/master/certs/cert.pem
-key_file: /home/phobos/Documents/Programing/OverwatchGMA/master/certs/key.pem
+commands_directory: /home/zeus/Projects/Programacion/OverwatchGMA/commands
+log_file: /home/zeus/Projects/Programacion/OverwatchGMA/delegate/phobos_delegate.log
+cert_file: /home/zeus/Projects/Programacion/OverwatchGMA/master/certs/cert.pem
+key_file: /home/zeus/Projects/Programacion/OverwatchGMA/master/certs/key.pem
 send_errors: false
 tags: 
   - ubuntu
@@ -12,7 +12,7 @@ commands:
   just_ls:
     command: just_ls
     parameters: 
-      - /home/phobos/Downloads
+      - /home/zeus
     frequency: 1
     user: 1000
     disabled: true
