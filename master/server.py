@@ -1,5 +1,5 @@
 # Simple HTTPS server in one file
-import socket, ssl, json
+import socket, ssl, json, datetime
 import sys, os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -91,21 +91,27 @@ try:
                     raise exceptions.MessageWithoutType("Message from {} came without key 'type': {}".format(conn.getpeername(), data))
             
             #Handle data if it is of type result
-            if data["type"] == usual_data.DELEGATE_MESSAGE_TYPE.RESULTS:
+            if data["type"] == usual_data.DELEGATE_MESSAGE_TYPE.RESULTS.value:
                 handle_results(data)
             #Handle data if it is of type error or the key "errors" is in data
-            elif data["type"] == usual_data.DELEGATE_MESSAGE_TYPE.ERRORS or "errors" in data:
+            elif data["type"] == usual_data.DELEGATE_MESSAGE_TYPE.ERRORS.value or "errors" in data:
                 handle_errors(data)
-            elif data["type"] == usual_data.DELEGATE_MESSAGE_TYPE.ALERT:
-                handle_alert(data)
-            #TODO: Handle errors and alerts
+            elif data["type"] == usual_data.DELEGATE_MESSAGE_TYPE.ALERT.value:
+                handle_alert(data) #TODO: Handle alerts
+            else:
+                logger.error("Request from {} couldn't be handled, it came with type {}".format(conn.getpeername(), data["type"]))
+            
+            #Store received hostname ip and check for incongruences
             with db.get_connection() as db_connection:
-                #Store received hostname ip
+                #Check for incogruences
+                incongruencias = db_commands.hosts_registry_check_if_ip_incongruent(db_connection,data["hostname"],conn.getpeername()[0])
+                if len(incongruencias)>0:
+                    for element in incongruencias:
+                        message = "IP incongruences found for host {} with ip {}, which was registered as {} at {}".format(data["hostname"], conn.getpeername()[0], element[2],element[4])
+                        logger.info(message)
+                        db_commands.store_command_message(db_connection, db.COMMAND_TYPE.MASTER_ERROR, datetime.datetime.now(datetime.UTC).timestamp(), data["hostname"], "hosts_registry_check_if_ip_incongruent__db",0,message)
+                #Register ip
                 db_commands.hosts_registry_update(db_connection, data["hostname"], conn.getpeername()[0], data["utcstamp"])
-                #Check ip incongruencies #TODO: Investigate if it is better to keep this checking outside using scheduling
-                incongruencias = db_commands.hosts_registry_check_for_incongruent_ips(db_connection)
-                for row in incongruencias:
-                    logger.warning("Host IP changed for {} from {} to {}".format(row[1],row[2],row[3]))
         
         #Shutdown and disable receiving any more
         finally:

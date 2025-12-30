@@ -22,7 +22,7 @@ def store_command_message(connection, status:db.COMMAND_TYPE, timestamp:int, hos
         '''
     elif status == db.COMMAND_TYPE.MASTER: #TODO: Create active controls
         insert_query = '''
-            INSERT INTO active_controls(host,timestamp,command_name,returncode,message) 
+            INSERT INTO master_controls(host,timestamp,command_name,returncode,message) 
             VALUES(?,?,?,?,?);
         '''
     elif status == db.COMMAND_TYPE.DELEGATE_ERROR:
@@ -31,8 +31,10 @@ def store_command_message(connection, status:db.COMMAND_TYPE, timestamp:int, hos
             VALUES(?,?,?,?,?);
         '''
     elif status == db.COMMAND_TYPE.MASTER_ERROR: #TODO: Create MASTER_ERROR table
-        logger.error("db_commands still requires code for MASTER_ERROR")
-        return
+        insert_query = '''
+            INSERT INTO master_errors(host,timestamp,command_name,returncode,message) 
+            VALUES(?,?,?,?,?);
+        '''
     cursor : sqlite3.Cursor = connection.cursor()
     cursor.execute(insert_query, (
             host, timestamp, command_name, returncode, message
@@ -70,6 +72,12 @@ def hosts_registry_check_for_incongruent_ips(connection):
     cursor : sqlite3.Cursor = connection.cursor()
     query = "SELECT * FROM hosts_registry WHERE ip != previous_ip;"
     cursor.execute(query)
+    return cursor.fetchall()
+
+def hosts_registry_check_if_ip_incongruent(connection, hostname:str, ip:str):
+    cursor : sqlite3.Cursor = connection.cursor()
+    query = "SELECT * FROM hosts_registry WHERE host = ? AND ip != ?;"
+    cursor.execute(query, [hostname,ip])
     return cursor.fetchall()
 
 

@@ -139,7 +139,7 @@ class HostData():
 
     def append_command(self,command:CommandData):
         if not command.command_name in self.commands:
-            self.commands[command_name] = c
+            self.commands[command.command_name] = command
             return True
         return False
 
