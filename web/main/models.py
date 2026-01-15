@@ -1,5 +1,7 @@
 from django.db import models
 
+#TODO: Just get "latest" result of each control for each host
+
 class delegate_controls(models.Model):
     host = models.CharField(max_length=16)
     timestamp = models.IntegerField()
@@ -7,6 +9,7 @@ class delegate_controls(models.Model):
     returncode = models.IntegerField()
     message = models.TextField()
 
+    #Not properly working, maybe just add 2 rows to the table to handle this (instead of rechecking DB)
     @property
     def time_running(self) -> int:
         return 100
