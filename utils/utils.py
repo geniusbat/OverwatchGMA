@@ -10,7 +10,7 @@ def load_yaml(file:str):
     else:
         raise FileExistsError("File not found at: {}".format(file))
 
-#TODO: change bc i added the key "command" to the commands and "send_errors"
+#TODO: (15/01/2025 Just update as i added too many new things) <change bc i added the key "command" to the commands and "send_errors">
 def validate_delegate_config_yaml(file:str):
     if os.path.exists(file):
         with open(file, "r") as yaml_file:

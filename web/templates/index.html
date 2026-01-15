@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+{% load customtemplatetags %}
+
+{% block head %}
+    {% load static %}
+    <title>Index</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'index.css' %}">
+{% endblock head %}
+
+{% block content %}
+    HOLA MUNDO
+    <ul>
+    {% for control in delegate_controls %}
+        <li>
+            {{control.time_running}}
+            {{ control.host }} - {{ control.command_name }}: Returned ({{ control.returncode }}) {{ control.timestamp|secs_to_time }} (running for {{control.time_running|secs_to_time}})--{{ control.message }} 
+        </li>
+    {% endfor %}
+    </ul>
+    <br>
+    
+{% endblock content %}

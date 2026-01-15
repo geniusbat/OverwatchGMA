@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#Get threshold passed as argument to script, if not keep it at 80%
+if [ ! -z "$1" ]
+then
+    CONTAINER="$1"
+else
+    echo "ERROR: Must supply what container to check"
+    exit 1
+fi
+
+get_running_container_names() {
+    docker ps --format '{{.Names}}'
+}
+
+get_all_container_names() {
+    docker ps -a --format '{{.Names}}'
+}
+
+running=$(get_running_container_names| grep $CONTAINER | wc -l)
+
+if [ $running -ge 1 ]
+then
+    echo "OK - ${CONTAINER} running"
+    exit 0
+#Check if it exited or not created
+else
+    non_running=$(get_all_container_names| grep $CONTAINER | wc -l)
+    if [ $non_running -ge 1 ]
+    then
+        echo "WARNING - ${CONTAINER} isn't running"
+        exit 0
+    else
+        echo "CRITICAL - ${CONTAINER} doesn't exist in host"
+        exit 0
+    fi
+fi

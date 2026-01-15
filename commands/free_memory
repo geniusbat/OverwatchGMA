@@ -1,0 +1,27 @@
+#!/bin/bash
+
+THRESHOLD=35
+
+#Get threshold passed as argument to script, if not keep it at 20%
+if [ ! -z "$1" ]
+then
+    THRESHOLD="$1"
+fi
+
+get_free_memory() {
+    free | awk '/Mem:/ {printf "%.1f", $4/$2 * 100}'
+}
+
+free_mem=$(get_free_memory)
+
+#echo $THRESHOLD
+#echo $free_mem
+
+if (( $(echo "$free_mem < $THRESHOLD" | bc -l) ));
+then
+    echo "CRITICAL: Free memory below ${THRESHOLD}% (${free_mem}%)"
+    exit 0
+else
+    echo "OK - Free memory at $free_mem%"
+    exit 0
+fi

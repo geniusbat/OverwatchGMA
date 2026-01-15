@@ -16,11 +16,15 @@ DB_DIR = "./db.db"
 tags = {
     "ubuntu": {
         "commands": {
-            "uname": {
-                "command": "uname",
-                "frequency": 1
+            "high_cpu_usage": {
+                "command": "cpu_usage",
+                "frequency": 5
             },
-            
+            "root_filesystem_usage": {
+                "command": "filesystem_usage",
+                "parameters": ["/"],
+                "frequency": 45
+            },
         }
     },
 

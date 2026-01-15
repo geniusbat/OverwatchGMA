@@ -1,5 +1,5 @@
 # Simple HTTPS server in one file
-import socket, ssl, json, datetime
+import socket, ssl, json, datetime, argparse
 import sys, os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
@@ -9,18 +9,45 @@ from utils import logger, exceptions
 
 import db_commands, db
 
+
+#Define arguments
+parser=argparse.ArgumentParser()
+parser.add_argument("--cert_file",default="", help="Path to file certificate for server")
+parser.add_argument("--cert_key",default="", help="Path to key certificate for server")
+parser.add_argument("--log_file", help="Specify file to store logs, won't write to disk if unespecified")
+args=parser.parse_args()
+
+
 #CONFIGS
+#Configure logger
+logger.FILE_HANDLER = False
+logger.log_path = ""
+if args.log_file != None:
+    if len(args.log_file)>0:
+        logger.FILE_HANDLER = True
+        logger.log_path = args.log_file
+    else:
+        logger.info("Invalid log_file direction ({}), not writting to disk".format(args.log_file))
 #Create unsecured socket
 ssocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) 
 #Generate context
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-#Load certs. TODO: Do it dynamically
-context.load_cert_chain(certfile="/home/zeus/Projects/Programacion/OverwatchGMA/master/certs/cert.pem", keyfile="/home/zeus/Projects/Programacion/OverwatchGMA/master/certs/key.pem")
+context.verify_mode = ssl.CERT_REQUIRED
+#Load certs
+cert_file = args.cert_file
+cert_key = args.cert_key
+#Make sure files exist
+if not os.path.exists(cert_file):
+    message = "No valid cert_file path: {}".format(cert_file)
+    logger.error(message)
+    sys.exit(message)
+if not os.path.exists(cert_key):
+    message = "No valid cert_key path: {}".format(cert_key)
+    logger.error(message)
+    sys.exit(message)
+context.load_cert_chain(certfile=cert_file, keyfile=cert_key)
+context.load_verify_locations(cert_file)
 context.set_ciphers("@SECLEVEL=1:ALL")
-#Configure logger
-#For testing do not write to disk
-logger.log_path = ""
-logger.FILE_HANDLER = False
 
 
 def handle_results(data:dict):

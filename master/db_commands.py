@@ -17,7 +17,7 @@ def get_connection():
 def store_command_message(connection, status:db.COMMAND_TYPE, timestamp:int, host:str, command_name:str, returncode:int, message:str):
     if status == db.COMMAND_TYPE.DELEGATE:
         insert_query = '''
-            INSERT INTO passive_controls(host,timestamp,command_name,returncode,message) 
+            INSERT INTO delegate_controls(host,timestamp,command_name,returncode,message) 
             VALUES(?,?,?,?,?);
         '''
     elif status == db.COMMAND_TYPE.MASTER: #TODO: Create active controls
@@ -30,7 +30,7 @@ def store_command_message(connection, status:db.COMMAND_TYPE, timestamp:int, hos
             INSERT INTO delegate_errors(host,timestamp,command_name,returncode,message) 
             VALUES(?,?,?,?,?);
         '''
-    elif status == db.COMMAND_TYPE.MASTER_ERROR: #TODO: Create MASTER_ERROR table
+    elif status == db.COMMAND_TYPE.MASTER_ERROR:
         insert_query = '''
             INSERT INTO master_errors(host,timestamp,command_name,returncode,message) 
             VALUES(?,?,?,?,?);
@@ -94,8 +94,8 @@ def get_table(connection, table_name:str, extra_filter: str=""):
     cursor.execute(query)
     return cursor.fetchall()
 
-def passive_controls_get(connection, extra_filter: str=""):
-    query = 'SELECT * FROM passive_controls;'
+def delegate_controls_get(connection, extra_filter: str=""):
+    query = 'SELECT * FROM delegate_controls;'
     #Add extra_filter to query
     if len(extra_filter)>0:
         query = query[:-1]

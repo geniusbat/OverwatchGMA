@@ -18,7 +18,9 @@ class Client():
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
         self.context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         self.context.check_hostname = False
-        self.context.verify_mode = ssl.CERT_NONE
+        self.context.verify_mode = ssl.CERT_REQUIRED
+        self.context.load_cert_chain(cert, key)
+        self.context.load_verify_locations(cert)
         self.sock = self.context.wrap_socket(self.sock)
     
     def connect_send(self,message:str):

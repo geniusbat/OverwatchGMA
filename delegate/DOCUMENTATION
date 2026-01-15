@@ -1,6 +1,3 @@
-SPECIFY CONFIG_PATH
-set env variable "OVGMA_CONFIG_PATH"
-
 SEND USING NMAP
 ncat -C --ssl <IP> <PORT> -v -q0.5
 

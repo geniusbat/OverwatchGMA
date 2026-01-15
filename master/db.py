@@ -15,8 +15,12 @@ def get_connection():
     connection = sqlite3.connect(usual_data.DB_DIR)
     return connection
 
+
+#INITIALIZATION IS BEING MOVED TO DJANGO, THIS FILE JUST EXISTS FOR COMMAND_TYPE AND ANY OTHER HELPER FUNCTIONS TO INTERACT WITH THE DB OUTSIDE OF DJANGO
+
+
 def initialize_table_delegate_controls(cursor):
-    query = '''CREATE TABLE IF NOT EXISTS passive_controls (
+    query = '''CREATE TABLE IF NOT EXISTS delegate_controls (
         id INTEGER PRIMARY KEY,
         host VARCHAR(16),
         timestamp INTEGER,

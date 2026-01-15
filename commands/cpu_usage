@@ -1,0 +1,20 @@
+#!/bin/bash
+
+THRESHOLD=80
+
+#Get threshold passed as argument to script, if not keep it at 80%
+if [ ! -z "$1" ]
+then
+    THRESHOLD="$1"
+fi
+
+cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
+
+if [ "${cpu_usage%.*}" -gt "$THRESHOLD" ]; 
+then
+    echo "CRITICAL: High cpu usage above ${THRESHOLD}% (${cpu_usage}%)"
+    exit 0
+else
+    echo "OK - Cpu usage at ${cpu_usage}%"
+    exit 0
+fi

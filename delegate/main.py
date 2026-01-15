@@ -1,4 +1,4 @@
-import time, traceback, threading, queue, datetime, json
+import time, traceback, queue, datetime, json, argparse
 from typing import Tuple
 #Add root path to import modules
 import sys
@@ -73,9 +73,21 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> Tuple[
     return result, errors
 
 if __name__ == "__main__":
+    #Define parameters
+    parser=argparse.ArgumentParser()
+    parser.add_argument("-c", help="Defines path of delegate config to use")
+    args=parser.parse_args()
     try:
-        #Get delegate_config file path
-        config_dir = os.getenv("OVGMA_CONFIG_PATH", "delegate_config.yml")
+        #Get delegate_config file path from arguments
+        config_dir = ""
+        if args.c!=None and len(args.c)>0:
+            config_dir = args.c
+            #Make sure that file specified exits
+            if not os.path.exists(config_dir):
+                sys.exit("Configuration file {} does not exist".format(config_dir))
+        else:
+            sys.exit("No configuration file defined")
+
         #Load host data with tag commands
         host = HostData().loadNhandle(config_dir, usual_data.tags)
         #Configure logger
@@ -83,7 +95,7 @@ if __name__ == "__main__":
            logger.FILE_HANDLER = True
            logger.log_path = host.log_file
 
-        logger.debug("Correctly loaded config, starting delegate service")
+        logger.debug("Correctly loaded config, starting delegate service with config {}".format(config_dir))
 
         #Get biggest frequency of all enabled commands
         biggest_frequency = 1
@@ -97,7 +109,7 @@ if __name__ == "__main__":
             #Get commands to be executed
             commands_queued = []
             for command_key,command_value  in host.commands.items():
-                if time_counter % command_value.frequency == 0:
+                if not command_value.disabled and time_counter % command_value.frequency == 0:
                     commands_queued.append(command_key)
             #Get current time
             utc_timestamp = datetime.datetime.now(datetime.UTC).timestamp()

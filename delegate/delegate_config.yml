@@ -9,20 +9,14 @@ tags:
 #ignore_tag_commands:
 #  - 
 commands:
-  just_ls:
-    command: just_ls
-    parameters: 
-      - /home/zeus
-    frequency: 1
-    user: 1000
-    disabled: true
-
   get_cpu:
     command: get_cpu
     #user: 0
     frequency: 1
-
-  get_cpu2:
-    command: get_cpu
-    #user: 0
-    frequency: 1
+    disabled: true
+  
+  free_memory:
+    command: free_memory
+    frequency: 5
+    parameters:
+      - "30"

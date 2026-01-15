@@ -5,9 +5,9 @@ import sys
 import os
 from . import utils, structs
 
-FILE_HANDLER :bool = True #True if logs should be written to disk
+FILE_HANDLER :bool = False #True if logs should be written to disk
 LOG_LEVEL :int = logging.DEBUG #Minimum log level to log
-log_path :str = None #Log path if written to diskç
+log_path :str = None #Log path if written to disk
 extra_handlers : list[logging.Handler] = []
 
 #Writting logs to disk is done either by setting "log_path", passing a valid parameter "log_file" to the 
@@ -24,14 +24,9 @@ def get_log_handler() -> logging.Logger:
         #log_path is defined
         if not log_path is None:
             aux_handlers.append(logging.FileHandler(log_path))
-        #log_path not defined. Get config direction from config_file which is defined in an enviroment variable
+        #log_path not defined
         elif log_path is None:
-            config_dir = os.getenv("OVGMA_CONFIG_PATH", None)
-            if config_dir is None:
-                raise FileNotFoundError("Please either define a log_path or set config in the enviroment variable 'OVGMA_CONFIG_PATH' if desiring to write logs to disk")
-            #Load logging file direction
-            log_file = utils.load_yaml(config_dir)["log_file"]
-            aux_handlers.append(logging.FileHandler(log_file))
+            raise FileNotFoundError("Please either define a log_path if desiring to write logs to disk")
 
     if len(aux_handlers)>0:
         aux_handlers.extend(aux_handlers)
