@@ -45,7 +45,7 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> Tuple[
                     error_queue.put({
                         "command_name": command_key,
                         "returncode": 127, 
-                        "stderr": "Command not found at: {}".format(command_path)
+                        "message": "Command not found at: {}".format(command_path)
                     })
                 #CommandNotFound exception is set as blocking
                 else:
@@ -58,17 +58,17 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> Tuple[
     for t in threads:
         t.join()
     #Get results
-    result = {}
+    result = []
     while not output_queue.empty():
         output = output_queue.get()
-        result[output["command_name"]] = output
+        result.append(output)
     #Get thread errors
-    errors = {}
+    errors = []
     #Log errors
     while not error_queue.empty():
         single_error = error_queue.get()
         logger.warning(single_error)
-        errors[single_error["command"]] = single_error
+        errors.append(single_error)
 
     return result, errors
 
@@ -112,24 +112,39 @@ if __name__ == "__main__":
                 if not command_value.disabled and time_counter % command_value.frequency == 0:
                     commands_queued.append(command_key)
             #Get current time
-            utc_timestamp = datetime.datetime.now(datetime.UTC).timestamp()
+            utc_timestamp = int(datetime.datetime.now(datetime.UTC).timestamp())
             logger.debug("At time {} running commands: {}".format(time_counter, commands_queued))
             #Get result and errors
             result, errors = handle_specific_commands(host, commands_queued)
-            #From results and such create a packet to be sent to master
-            packet = {"type":usual_data.DELEGATE_MESSAGE_TYPE.RESULTS.value,"hostname":host.hostname,"utcstamp":utc_timestamp, "results":result}
             #Log errors
             for error in errors:
                 logger.error("Error when executing thread. Message: {}\n".format(error))
-            if host.send_errors:
-                if len(errors)>0:
-                    packet["errors"] = errors
+            #Add host and timestamp to results and errors to be sent to api
+            result = [{**element,"host":host.hostname, 'timestamp': utc_timestamp} for element in result]
+            errors = [{**element,"host":host.hostname, 'timestamp': utc_timestamp} for element in errors]
             #Connect to master and send packet
             try:
-                client = Client(usual_data.MASTER_IP,usual_data.COMS_PORT,host.cert_file,host.key_file)
-                client.connect_send(json.dumps(packet))
-                client.close()
-                logger.debug("Connection to master correct and sent data")
+                #Create client to api
+                cl = Client(usual_data.MASTER_IP,host.api_token,usual_data.API_PORT,usual_data.API_HTTPS) #TODO: Remove token before committing
+                #Send controls
+                if len(result)>0:
+                    response = cl.post_delegate_controls(json.dumps(result))
+                    #Something went wrong
+                    if response.status_code > 300:
+                        logger.warning("Something went wrong when sending controls to master: status code {}, message:\n{}".format(response.status_code,response.text))
+                    #Everything alright
+                    else:
+                        logger.debug("Connection to master correct and sent data")
+                #Send errors (if needed)
+                if host.send_errors:
+                    if len(errors)>0:
+                        response = cl.post_delegate_errors(json.dumps(errors))
+                    #Something went wrong
+                    if response.status_code > 300:
+                        logger.warning("Something went wrong when errors to master: status code {}, message:\n{}".format(response.status_code,response.text))
+                    #Everything alright
+                    else:
+                        logger.debug("Sent errors to master correctly")
             #Handle connection refused
             except ConnectionRefusedError as e:
                 traceback_str = ''.join(traceback.format_tb(e.__traceback__))

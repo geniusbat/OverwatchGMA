@@ -60,12 +60,13 @@ class HostData():
     cert_file : str
     key_file : str
     send_errors : bool
+    api_token : str
 
 
     def load(self, host_path:str):
         if os.path.exists(host_path):
             config = load_yaml(host_path)
-            return self.init(config["hostname"],config.get("tags", []),config["commands_directory"],config["send_errors"],config["commands"],config["log_file"],config["cert_file"],config["key_file"],config.get("ignore_tag_commands", []))
+            return self.init(config["hostname"],config.get("tags", []),config["commands_directory"],config["send_errors"],config["api_token"],config["commands"],config["log_file"],config["cert_file"],config["key_file"],config.get("ignore_tag_commands", []))
         else:
             raise FileNotFoundError("Could not find config file at: "+host_path)
 
@@ -76,7 +77,7 @@ class HostData():
         return self
 
     #Load the class, it will not inherently handle commands inherited from tags, for that you need to use handle_tag_commands
-    def init(self, hostname:str, tags:list[str], commands_directory:str, send_errors:bool, commands_raw:dict[str:dict],log_file:str, cert_file:str, key_file:str, ignore_tag_commands:list[str]=[]):
+    def init(self, hostname:str, tags:list[str], commands_directory:str, send_errors:bool,api_token:str, commands_raw:dict[str:dict],log_file:str, cert_file:str, key_file:str, ignore_tag_commands:list[str]=[]):
         self.hostname = hostname
         self.tags = tags
         self.send_errors = send_errors
@@ -85,6 +86,7 @@ class HostData():
         self.log_file = log_file
         self.cert_file = cert_file
         self.key_file = key_file
+        self.api_token = api_token
         self.commands = {}
         if ignore_tag_commands is None:
             self.ignore_tag_commands = []

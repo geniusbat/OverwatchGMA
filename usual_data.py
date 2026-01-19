@@ -9,7 +9,9 @@ from utils import exceptions
 DEBUG = True
 
 MASTER_IP = "127.0.0.1"
-COMS_PORT = 6707
+COMS_PORT = 6707 #Unused, as it was used for tcp connection
+API_PORT = "8000"
+API_HTTPS = False
 
 DB_DIR = "./db.db"
 

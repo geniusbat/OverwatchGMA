@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 from pathlib import Path
 import os.path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +22,14 @@ ROOT_DIR = BASE_DIR.resolve().parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-rwx4z9t+_4c=u^*-%+e#0bl&v8%-pcu=iied6h_$n71lnmhml='
+SECRET_KEY = os.getenv("OVGMA_DJANGO_SECRET", default=None)
+if SECRET_KEY == None:
+    raise UserWarning("Requiring OVGMA_DJANGO_SECRET env variable for django secret key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(os.getenv("OVGMA_DEBUG", default=False))
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["*"]#TODO: Harden allowed hosts
 
 
 # Application definition
@@ -38,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "rest_framework",
+    "rest_framework.authtoken",
+    "api",
     "main",
 ]
 
@@ -79,7 +85,7 @@ WSGI_APPLICATION = 'web.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ROOT_DIR / 'db.db',
+        'NAME': BASE_DIR / 'db.db', 
     }
 }
 
@@ -125,3 +131,16 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR.joinpath("static")
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissions'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
+#TODO: Match tokens to ips so if attacker grabs a token then i am warned

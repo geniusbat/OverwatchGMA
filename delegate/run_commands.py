@@ -28,7 +28,7 @@ def run_command(command_name:str,command_path:str,user:str=None, parameters:list
             result = {
                 "command_name": os.path.split(command_name)[-1],
                 "returncode": process.returncode, 
-                "stdout": stdout.strip()
+                "message": stdout.strip()
             }
             q_output.put(result)
         #Write process stderr if return code isn't 0 to error queue
@@ -37,7 +37,7 @@ def run_command(command_name:str,command_path:str,user:str=None, parameters:list
                 error = {
                     "command_name": os.path.split(command_name)[-1],
                     "returncode": process.returncode, 
-                    "stderr": stderr.strip()
+                    "message": stderr.strip()
                 }
                 q_error.put(error)
         
