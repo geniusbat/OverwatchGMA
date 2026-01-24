@@ -112,12 +112,10 @@ class hosts_registryAdmin(admin.ModelAdmin):
     list_display.append("link_to_token")
     list_filter = ["host"]
     search_fields = ["host", "ip", "valid_ips"]
-    #print(models.DelegateToken.objects.first().)
     def link_to_token(self, obj):
-        link = reverse(f"admin:authtoken_delegatetoken_change", args=[obj.token.pk])
+        link = reverse(f"admin:web_delegatetoken_change", args=[obj.token.pk])
         return mark_safe(f'<a href="{link}">{escape(obj.token)}</a>')
     link_to_token.short_description = 'Token'
-
 admin.site.register(models.hosts_registry,hosts_registryAdmin)
 
 
@@ -133,19 +131,3 @@ class master_errorsAdmin(admin.ModelAdmin):
     list_filter = ["host", ("returncode",ReturncodeFilter), TimestampFilter]
     search_fields = ["command_name", "message"]
 admin.site.register(models.master_errors,master_errorsAdmin)
-
-
-models.DelegateToken._meta.app_label = "authtoken" #Change meta to add it to the correct app
-class DeletageTokenAdmin(admin.ModelAdmin):
-    list_display = ["host","created","key"]
-    #Set default value for key
-    def get_form(self, request, obj=None, **kwargs):
-        form = super(DeletageTokenAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['key'].initial = models.DelegateToken.generate_key()
-        return form
-    #Print host name
-    def host(self,obj):
-        return obj.hosts_registry.host
-    host.short_description = 'Host'
-    host.admin_order_field = 'host'
-admin.site.register(models.DelegateToken,DeletageTokenAdmin)

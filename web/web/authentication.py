@@ -1,11 +1,13 @@
 from rest_framework.authentication import BaseAuthentication, get_authorization_header, exceptions
 from django.contrib.auth.models import AnonymousUser
 
-from main import models
+from . import models
 
 #User class used by DelegateTokenAuthentication as it requires an user but no user is actually related to the host_registry
 class DelegateAnonymousUser(AnonymousUser):
     is_delegate = True #Attribute used to distingish DelegateAnonymousUser from AnonymousUser
+    is_staff = False
+    is_admin = False
     @property
     def is_authenticated(self):
         return True

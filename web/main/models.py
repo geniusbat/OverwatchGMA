@@ -1,8 +1,10 @@
 from django.db import models
-import datetime, binascii, os
+import datetime
+
+from web.models import DelegateToken
 
 def _aux_get_now_utc_timestamp():
-    return datetime.datetime.now(datetime.UTC).timestamp()
+    return int(datetime.datetime.now(datetime.UTC).timestamp())
 
 def _secs_to_time(value):
     try:
@@ -188,30 +190,6 @@ class master_errors(models.Model):
         return "{}-{} ({}):{}".format(self.host, self.command_name, self.timestamp, self.returncode)
 
 
-class DelegateToken(models.Model):
-    """
-    Auth key used for delegate hosts. Directly copied from the rest_framework.authtoken.models Token class
-    """
-    key = models.CharField("Key", max_length=40, primary_key=True)
-    created = models.DateTimeField("Created", auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created","hosts_registry"]
-        verbose_name = "Delegate Token"
-        verbose_name_plural = "Delegate Tokens"
-
-    def save(self, *args, **kwargs):
-        if not self.key:
-            self.key = self.generate_key()
-        return super().save(*args, **kwargs)
-
-    @classmethod
-    def generate_key(cls):
-        return binascii.hexlify(os.urandom(20)).decode()
-
-    def __str__(self):
-        return self.key
-
 class hosts_registry(models.Model):
     host = models.CharField(max_length=16, unique=True)
     ip = models.CharField(max_length=39)
@@ -258,3 +236,6 @@ class hosts_registry(models.Model):
 
     def __str__(self):
         return "{}: {}<--{} ({})".format(self.host, self.ip, self.previous_ip, self.last_time_seen)
+    
+
+    from django.contrib.auth.models import AbstractUser

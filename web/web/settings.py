@@ -35,6 +35,9 @@ ALLOWED_HOSTS = ["*"]#TODO: Harden allowed hosts
 # Application definition
 
 INSTALLED_APPS = [
+    "api",
+    "main",
+    "web",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -43,13 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "rest_framework",
     "rest_framework.authtoken",
-    "web",
-    "api",
-    "main",
 ]
 
-#Override default user model
-AUTH_USER_MODEL = "api.User"
+AUTH_USER_MODEL = "web.User"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -147,7 +146,6 @@ REST_FRAMEWORK = {
 }
 
 #TODO: Match tokens to ips so if attacker grabs a token then i am warned
-#TODO: Integrate host_registry+tokens+users
 
 #Specify date formats (for english locale)
 from django.conf.locale.en import formats as en_formats

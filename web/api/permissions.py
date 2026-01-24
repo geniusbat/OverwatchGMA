@@ -60,7 +60,7 @@ class HostRegistryValidIpPermissions(BasePermission):
             if request.method == "OPTIONS":
                 return True
         #Return true if user is a staff member
-        if request.user.is_staff:
+        if request.user.is_staff or request.user.is_admin:
             return True
         pairs = self._extract_hostNip(request, view)
         #Iterate over all pairs and check permissions, if anything fails return False, if everything goes well return true
