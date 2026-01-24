@@ -8,15 +8,91 @@
 {% endblock head %}
 
 {% block content %}
-    HOLA MUNDO
-    <ul>
+
+
+    <h2>Delegate Controls</h2>
+    <table class="controls">
+        <tr>
+            <th>Host</th>
+            <th>Command name</th>
+            <th class="center-cell">Return code</th>
+            <th class="center-cell">Timestamp</th>
+            <th class="center-cell">Last change at</th>
+            <th>Message</th>
+        </tr>
     {% for control in delegate_controls %}
-        <li>
-            {{control.time_running}}
-            {{ control.host }} - {{ control.command_name }}: Returned ({{ control.returncode }}) {{ control.timestamp|secs_to_time }} (running for {{control.time_running|secs_to_time}})--{{ control.message }} 
-        </li>
+        <tr>
+            <td>{{ control.host }}</td>
+            <td>{{ control.command_name }}</td>
+            <td class="center-cell">{{ control.returncode }}</td>
+            <td class="center-cell">{{ control.timestamp|secs_to_datetime }}</td>
+            <td class="center-cell">{{ control.timestamp|substract:control.last_change|secs_to_time }}</td>
+            <td>{{ control.message }}</td>
+        </tr>
     {% endfor %}
-    </ul>
-    <br>
+    </table>
+
+
+    <h2>Master Errors</h2>
+    <table class="errors">
+        <tr>
+            <th>Host</th>
+            <th>Command name</th>
+            <th class="center-cell">Return code</th>
+            <th class="center-cell">Timestamp</th>
+            <th>Message</th>
+        </tr>
+    {% for error in master_errors %}
+        <tr>
+            <td>{{ error.host }}</td>
+            <td>{{ error.command_name }}</td>
+            <td class="center-cell">{{ error.returncode }}</td>
+            <td class="center-cell">{{ error.timestamp|secs_to_datetime }}</td>
+            <td>{{ error.message }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <h2>Master Controls</h2>
+    <table class="controls">
+        <tr>
+            <th>Host</th>
+            <th>Command name</th>
+            <th class="center-cell">Return code</th>
+            <th class="center-cell">Timestamp</th>
+            <th class="center-cell">Last change at</th>
+            <th>Message</th>
+        </tr>
+    {% for control in master_controls %}
+        <tr>
+            <td>{{ control.host }}</td>
+            <td>{{ control.command_name }}</td>
+            <td class="center-cell">{{ control.returncode }}</td>
+            <td class="center-cell">{{ control.timestamp|secs_to_datetime }}</td>
+            <td class="center-cell">{{ control.timestamp|substract:control.last_change|secs_to_time }}</td>
+            <td>{{ control.message }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <h2>Delegate Errors</h2>
+    <table class="errors">
+        <tr>
+            <th>Host</th>
+            <th>Command name</th>
+            <th class="center-cell">Return code</th>
+            <th class="center-cell">Timestamp</th>
+            <th>Message</th>
+        </tr>
+    {% for error in delegate_errors %}
+        <tr>
+            <td>{{ error.host }}</td>
+            <td>{{ error.command_name }}</td>
+            <td class="center-cell">{{ error.returncode }}</td>
+            <td class="center-cell">{{ error.timestamp|secs_to_datetime }}</td>
+            <td>{{ error.message }}</td>
+        </tr>
+    {% endfor %}
+    </table>
     
 {% endblock content %}

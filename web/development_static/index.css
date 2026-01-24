@@ -1,0 +1,25 @@
+.controls th, .errors th {
+    border-bottom: 5px solid black;
+    border-left: 2px solid black;
+    border-right: 2px solid black;
+}
+
+.controls td, .errors td {
+    border: 2px solid black;
+    padding: 0.15vh 0.2vw;
+}
+
+table .center-cell {
+    text-align: center;
+}
+.controls, .errors {
+    border: 5px dotted white;
+}
+
+.controls,.errors tr:nth-child(even) {
+  background-color: rgba(150, 212, 212, 0.4);
+}
+
+.controls,.errors th:nth-child(even),td:nth-child(even) {
+  background-color: rgba(150, 212, 212, 0.4);
+}

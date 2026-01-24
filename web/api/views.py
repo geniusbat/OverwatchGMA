@@ -35,15 +35,18 @@ class delegate_controlsList(generics.ListCreateAPIView):
             if not type(ins) is list:
                 ins = [ins]
             #Now update host_registry with the ip of the request
+            seen_hosts = [] #Keep alreay seen hosts to not run the same code multiple times
             new_ip = request.META["REMOTE_ADDR"]
             #Get ip from X-Forwarded-For, if not just keep it from request
             if "HTTP_X_FORWARDED_FOR" in request.META.keys():
                 new_ip = request.META["HTTP_X_FORWARDED_FOR"]
             for element in ins:
-                registry = models.hosts_registry.objects.get(host = element.host)
-                #Update registry with new ip and also check for any incongruences
-                valid_entry = registry.check_update_entry(new_ip, datetime.datetime.now(datetime.UTC).timestamp())
-                valid_entry = "" if valid_entry else " (ip incongruency)"
+                if not element.host in seen_hosts:
+                    registry = models.hosts_registry.objects.get(host = element.host)
+                    #Update registry with new ip and also check for any incongruences
+                    valid_entry = registry.check_update_entry(new_ip, datetime.datetime.now(datetime.UTC).timestamp())
+                    valid_entry = "" if valid_entry else " (ip incongruency)"
+                    seen_hosts.append(element.host)
             return Response("Created successfully{}: {}".format(valid_entry,str(ins)), status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

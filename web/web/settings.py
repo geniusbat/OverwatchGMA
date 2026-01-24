@@ -43,9 +43,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "rest_framework",
     "rest_framework.authtoken",
+    "web",
     "api",
     "main",
 ]
+
+#Override default user model
+AUTH_USER_MODEL = "api.User"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -88,7 +92,6 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.db', 
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -138,9 +141,19 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.DjangoModelPermissions'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        'web.authentication.TokenAuthentication'
     ]
 }
 
 #TODO: Match tokens to ips so if attacker grabs a token then i am warned
+#TODO: Integrate host_registry+tokens+users
+
+#Specify date formats (for english locale)
+from django.conf.locale.en import formats as en_formats
+en_formats.DATETIME_FORMAT = "H:i:s - d/m/Y"
+en_formats.SHORT_DATETIME_FORMAT = "H:i:s - d/m/Y"
+en_formats.DATETIME_INPUT_FORMATS = "H:i:s - d/m/Y"
+en_formats.DATE_FORMAT = "d/m/Y"
+en_formats.SHORT_DATE_FORMAT = "d/m/Y"
+en_formats.DATE_INPUT_FORMATS = "d/m/Y"
