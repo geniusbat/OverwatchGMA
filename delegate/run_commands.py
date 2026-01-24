@@ -22,8 +22,7 @@ def run_command(command_name:str,command_path:str,user:str=None, parameters:list
         stdout, stderr = process.communicate()
         #Kill process, most probably not needed by "just in case"
         process.kill()
-        
-        #Write process stdout to the output queue
+        #Write process stdout to the output queue, used in multithreading
         if q_output:
             result = {
                 "command_name": os.path.split(command_name)[-1],
@@ -31,9 +30,9 @@ def run_command(command_name:str,command_path:str,user:str=None, parameters:list
                 "message": stdout.strip()
             }
             q_output.put(result)
-        #Write process stderr if return code isn't 0 to error queue
+        #Write process stderr, if there is anything in stderr, used in multithreading
         if q_error:
-            if process.returncode > 0:
+            if len(stderr)>0:
                 error = {
                     "command_name": os.path.split(command_name)[-1],
                     "returncode": process.returncode, 

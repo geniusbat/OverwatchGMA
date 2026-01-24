@@ -13,7 +13,7 @@ from utils.structs import HostData, CommandData
 from client import Client
 from run_commands import run_command
 
-
+TESTING = False
 
 def handle_specific_commands(host:HostData, commands_queued:list[str]) -> Tuple[dict, dict]:
     #Create queues
@@ -69,15 +69,17 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> Tuple[
         single_error = error_queue.get()
         logger.warning(single_error)
         errors.append(single_error)
-
     return result, errors
 
 if __name__ == "__main__":
     #Define parameters
     parser=argparse.ArgumentParser()
     parser.add_argument("-c", help="Defines path of delegate config to use")
+    parser.add_argument('--test', help="Run script as test, therefore don't send to server and run verbosely", action='store_true')
     args=parser.parse_args()
     try:
+        #Set if testing
+        TESTING = args.test
         #Get delegate_config file path from arguments
         config_dir = ""
         if args.c!=None and len(args.c)>0:
@@ -94,7 +96,7 @@ if __name__ == "__main__":
         if len(host.log_file) > 0:
            logger.FILE_HANDLER = True
            logger.log_path = host.log_file
-
+        
         logger.debug("Correctly loaded config, starting delegate service with config {}".format(config_dir))
 
         #Get biggest frequency of all enabled commands
@@ -102,7 +104,8 @@ if __name__ == "__main__":
         for command_key,command_value  in host.commands.items():
             if command_value.frequency > biggest_frequency and not command_value.disabled:
                 biggest_frequency = command_value.frequency
-        
+        if TESTING:
+            logger.debug("Biggest frequency found: {}".format(biggest_frequency))
         #Main loop, timed at 1 minutes to run all required commands and send results to master 
         time_counter :int = 0
         while True:
@@ -123,40 +126,47 @@ if __name__ == "__main__":
             result = [{**element,"host":host.hostname, 'timestamp': utc_timestamp} for element in result]
             errors = [{**element,"host":host.hostname, 'timestamp': utc_timestamp} for element in errors]
             #Connect to master and send packet
-            try:
-                #Create client to api
-                cl = Client(usual_data.MASTER_IP,host.api_token,usual_data.API_PORT,usual_data.API_HTTPS) #TODO: Remove token before committing
-                #Send controls
-                if len(result)>0:
-                    response = cl.post_delegate_controls(json.dumps(result))
-                    #Something went wrong
-                    if response.status_code > 300:
-                        logger.warning("Something went wrong when sending controls to master: status code {}, message:\n{}".format(response.status_code,response.text))
-                    #Everything alright
-                    else:
-                        logger.debug("Connection to master correct and sent data")
-                #Send errors (if needed)
-                if host.send_errors:
-                    if len(errors)>0:
-                        response = cl.post_delegate_errors(json.dumps(errors))
-                    #Something went wrong
-                    if response.status_code > 300:
-                        logger.warning("Something went wrong when errors to master: status code {}, message:\n{}".format(response.status_code,response.text))
-                    #Everything alright
-                    else:
-                        logger.debug("Sent errors to master correctly")
-            #Handle connection refused
-            except ConnectionRefusedError as e:
-                traceback_str = ''.join(traceback.format_tb(e.__traceback__))
-                logger.error("Connection refused when sending to master:\n{}".format(traceback_str))
-            
+            if not TESTING:
+                try:
+                    #Create client to api
+                    cl = Client(usual_data.MASTER_IP,host.api_token,usual_data.API_PORT,usual_data.API_HTTPS) #TODO: Remove token before committing
+                    #Send controls
+                    if len(result)>0:
+                        response = cl.post_delegate_controls(json.dumps(result))
+                        #Something went wrong
+                        if response.status_code > 300:
+                            logger.warning("Something went wrong when sending controls to master: status code {}, message:\n{}".format(response.status_code,response.text))
+                        #Everything alright
+                        else:
+                            logger.debug("Connection to master correct and sent data")
+                    #Send errors (if needed)
+                    if host.send_errors:
+                        if len(errors)>0:
+                            response = cl.post_delegate_errors(json.dumps(errors))
+                        #Something went wrong
+                        if response.status_code > 300:
+                            logger.warning("Something went wrong when errors to master: status code {}, message:\n{}".format(response.status_code,response.text))
+                        #Everything alright
+                        else:
+                            logger.debug("Sent errors to master correctly")
+                #Handle connection refused
+                except ConnectionRefusedError as e:
+                    traceback_str = ''.join(traceback.format_tb(e.__traceback__))
+                    logger.error("Connection refused when sending to master:\n{}".format(traceback_str))
+            else:
+                logger.info("Results")
+                for element in result:
+                    logger.info("{}".format(json.dumps(result)))
+                logger.info("Errors")
+                for element in errors:
+                    logger.info("{}".format(json.dumps(errors)))
             #Finishing loop
             time_counter += 1
             #Reset time_counter if surpassing biggest frequency
             if time_counter>=biggest_frequency:
                 time_counter = 0
             #Sleep for less if in debug
-            if usual_data.DEBUG:
+            if TESTING:
                 time.sleep(2.5)
             else:
                 time.sleep(60)

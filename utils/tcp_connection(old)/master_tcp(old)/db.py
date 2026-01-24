@@ -69,8 +69,8 @@ def initialize_table_hosts_registry(cursor):
         host VARCHAR(16),
         ip VARCHAR(39),
         previous_ip VARCHAR(39),
-        last_updated INTEGER,
-        previous_last_updated INTEGER
+        last_time_seen INTEGER,
+        previous_last_time_seen INTEGER
     );'''
     cursor.execute(query)
 

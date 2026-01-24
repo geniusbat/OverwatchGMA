@@ -93,7 +93,7 @@ if __name__ == "__main__":
     #Test connection
     if args.test:
         print("TESTING")
-        cl = Client("127.0.0.1",args.token,"8000",False,) #TODO: Remove token before committing
+        cl = Client("127.0.0.1",args.token,"8000",False,)
         response = cl.options_delegate_controls()
         #print(response)
     #Handle parameters passed

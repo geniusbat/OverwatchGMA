@@ -43,14 +43,14 @@ def store_command_message(connection, status:db.COMMAND_TYPE, timestamp:int, hos
     connection.commit()
 
 def hosts_registry_update(connection, host: str, ip:str, timestamp:int):
-    query_check_exists = "SELECT id, ip, last_updated FROM hosts_registry WHERE host = ?;"
+    query_check_exists = "SELECT id, ip, last_time_seen FROM hosts_registry WHERE host = ?;"
     cursor : sqlite3.Cursor = connection.cursor()
     cursor.execute(query_check_exists, [host])
     check_result = cursor.fetchall()
     #None returned, create row
     if len(check_result)==0:
         query_insert = """INSERT INTO hosts_registry
-            (host, ip, previous_ip, last_updated, previous_last_updated)
+            (host, ip, previous_ip, last_time_seen, previous_last_time_seen)
             VALUES
             (?, ?, '', ?, '');
         """
@@ -59,7 +59,7 @@ def hosts_registry_update(connection, host: str, ip:str, timestamp:int):
     #One row exists, update
     if len(check_result)==1:
         query_update = """UPDATE hosts_registry SET
-        ip=?, previous_ip=?, last_updated=?, previous_last_updated=?
+        ip=?, previous_ip=?, last_time_seen=?, previous_last_time_seen=?
         WHERE id=?;
         """
         cursor.execute(query_update, [ip, check_result[0][1], timestamp, check_result[0][2],check_result[0][0]])
