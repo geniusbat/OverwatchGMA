@@ -10,7 +10,7 @@
 {% block content %}
 
 
-    <h2>Delegate Controls</h2>
+    <h2>Delegate Controls <a href="{% url 'admin:main_delegate_controls_changelist' %}">-->Go</a></h2>
     <table class="controls">
         <tr>
             <th>Host</th>
@@ -21,19 +21,31 @@
             <th>Message</th>
         </tr>
     {% for control in delegate_controls %}
-        <tr>
+        <!--Assign class to row based on command returncode-->
+        {% if control.returncode == 0 %}
+            <tr class="row-good">
+        {% else %}
+            <tr class="row-warning">
+        {% endif %}
+
             <td>{{ control.host }}</td>
             <td>{{ control.command_name }}</td>
             <td class="center-cell">{{ control.returncode }}</td>
-            <td class="center-cell">{{ control.timestamp|secs_to_datetime }}</td>
-            <td class="center-cell">{{ control.timestamp|substract:control.last_change|secs_to_time }}</td>
+            <td class="center-cell">
+                <div class="hint">{{ control.timestamp|secs_to_datetime }}</div>
+                <div class="base">{{ control.timestamp|substract_to_now|secs_to_time }}</div>
+            </td>
+            <td class="center-cell">
+                <div class="hint">{{ control.last_change|secs_to_datetime }}</div>
+                <div class="base">{{ control.timestamp|substract:control.last_change|secs_to_time }}</div>
+            </td>
             <td>{{ control.message }}</td>
         </tr>
     {% endfor %}
     </table>
 
 
-    <h2>Master Errors</h2>
+    <h2>Master Errors <a href="{% url 'admin:main_master_errors_changelist' %}">-->Go</a></h2>
     <table class="errors">
         <tr>
             <th>Host</th>
@@ -43,17 +55,26 @@
             <th>Message</th>
         </tr>
     {% for error in master_errors %}
-        <tr>
+        <!--Assign class to row based on command returncode-->
+        {% if control.returncode == 0 %}
+            <tr class="row-good">
+        {% else %}
+            <tr class="row-warning">
+        {% endif %}
             <td>{{ error.host }}</td>
             <td>{{ error.command_name }}</td>
             <td class="center-cell">{{ error.returncode }}</td>
-            <td class="center-cell">{{ error.timestamp|secs_to_datetime }}</td>
+            <td class="center-cell">
+                <div class="hint">{{ error.timestamp|secs_to_datetime }}</div>
+                <div class="base">{{ error.timestamp|substract_to_now|secs_to_time }}</div>
+            </td>
             <td>{{ error.message }}</td>
+            <td><a href="{% url 'admin:main_delegate_errors_change' error.pk %}">Edit</a></td>
         </tr>
     {% endfor %}
     </table>
 
-    <h2>Master Controls</h2>
+    <h2>Master Controls <a href="{% url 'admin:main_master_controls_changelist' %}">-->Go</a></h2>
     <table class="controls">
         <tr>
             <th>Host</th>
@@ -64,18 +85,26 @@
             <th>Message</th>
         </tr>
     {% for control in master_controls %}
-        <tr>
+        <!--Assign class to row based on command returncode-->
+        {% if control.returncode == 0 %}
+            <tr class="row-good">
+        {% else %}
+            <tr class="row-warning">
+        {% endif %}
             <td>{{ control.host }}</td>
             <td>{{ control.command_name }}</td>
             <td class="center-cell">{{ control.returncode }}</td>
             <td class="center-cell">{{ control.timestamp|secs_to_datetime }}</td>
-            <td class="center-cell">{{ control.timestamp|substract:control.last_change|secs_to_time }}</td>
+            <td class="center-cell">
+                <div class="hint">{{ control.timestamp|secs_to_datetime }}</div>
+                <div class="base">{{ control.timestamp|substract_to_now|secs_to_time }}</div>
+            </td>
             <td>{{ control.message }}</td>
         </tr>
     {% endfor %}
     </table>
 
-    <h2>Delegate Errors</h2>
+    <h2>Delegate Errors <a href="{% url 'admin:main_delegate_errors_changelist' %}">-->Go</a></h2>
     <table class="errors">
         <tr>
             <th>Host</th>
@@ -85,12 +114,21 @@
             <th>Message</th>
         </tr>
     {% for error in delegate_errors %}
-        <tr>
+        <!--Assign class to row based on command returncode-->
+        {% if control.returncode == 0 %}
+            <tr class="row-good">
+        {% else %}
+            <tr class="row-warning">
+        {% endif %}
             <td>{{ error.host }}</td>
             <td>{{ error.command_name }}</td>
             <td class="center-cell">{{ error.returncode }}</td>
-            <td class="center-cell">{{ error.timestamp|secs_to_datetime }}</td>
+            <td class="center-cell">
+                <div class="hint">{{ error.timestamp|secs_to_datetime }}</div>
+                <div class="base">{{ error.timestamp|substract_to_now|secs_to_time }}</div>
+            </td>
             <td>{{ error.message }}</td>
+            <td><a href="{% url 'admin:main_delegate_errors_change' error.pk %}">Edit</a></td>
         </tr>
     {% endfor %}
     </table>

@@ -23,3 +23,11 @@ table .center-cell {
 .controls,.errors th:nth-child(even),td:nth-child(even) {
   background-color: rgba(150, 212, 212, 0.4);
 }
+
+.row-warning {
+    background-color: rgba(255, 1, 1, 0.564)!important;
+}
+
+.hint { display: none; }
+.center-cell:hover .hint { display: inline; }
+.center-cell:hover .base { display: none; }

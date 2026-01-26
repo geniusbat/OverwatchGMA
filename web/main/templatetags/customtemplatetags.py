@@ -34,6 +34,12 @@ def acces_dict(value:dict,key):
 @register.filter
 def substract(first,second):
     try:
-        return first-second
+        print(int(first-second))
+        return int(first-second)
     except:
         return "Substraction didn't work"
+
+@register.filter
+def substract_to_now(first):
+    second = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
+    return substract(second, first)
