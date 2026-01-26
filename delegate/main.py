@@ -143,12 +143,12 @@ if __name__ == "__main__":
                     if host.send_errors:
                         if len(errors)>0:
                             response = cl.post_delegate_errors(json.dumps(errors))
-                        #Something went wrong
-                        if response.status_code > 300:
-                            logger.warning("Something went wrong when errors to master: status code {}, message:\n{}".format(response.status_code,response.text))
-                        #Everything alright
-                        else:
-                            logger.debug("Sent errors to master correctly")
+                            #Something went wrong
+                            if response.status_code > 300:
+                                logger.warning("Something went wrong when errors to master: status code {}, message:\n{}".format(response.status_code,response.text))
+                            #Everything alright
+                            else:
+                                logger.debug("Sent errors to master correctly")
                 #Handle connection refused
                 except ConnectionRefusedError as e:
                     traceback_str = ''.join(traceback.format_tb(e.__traceback__))

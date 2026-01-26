@@ -1,21 +1,12 @@
 from django.shortcuts import redirect
-from rest_framework import permissions
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, mixins, generics
-
+from rest_framework import status, generics
 from .permissions import HostRegistryValidIpPermissions,ApiViewPermission
-
 import datetime
-
 
 from main import models, serializers
 
-
-#TODO: Authentication to API endpoints
-
-#delegate_control views
-
+#delegate_controls views
 class delegate_controlsList(generics.ListCreateAPIView):
     queryset = models.delegate_controls.objects.all()
     permission_classes = [HostRegistryValidIpPermissions,ApiViewPermission]
@@ -65,6 +56,7 @@ class delegate_controlsDetail(generics.RetrieveUpdateDestroyAPIView):
         self.destroy(request, *args, **kwargs)
         return Response("Deleted successfully", status=status.HTTP_200_OK)
 
+#delegate_errors views
 class delegate_errorsList(generics.ListCreateAPIView):
     queryset = models.delegate_errors.objects.all()
     permission_classes = [HostRegistryValidIpPermissions,ApiViewPermission]

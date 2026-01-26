@@ -35,7 +35,6 @@ class HostRegistryValidIpPermissions(BasePermission):
         if serializer.is_valid():
             data = serializer.data
             #Get ip
-            #Now update host_registry with the ip of the request
             ip = request.META["REMOTE_ADDR"]
             #Get ip from X-Forwarded-For, if not just keep it from request
             if "HTTP_X_FORWARDED_FOR" in request.META.keys():
@@ -71,7 +70,6 @@ class HostRegistryValidIpPermissions(BasePermission):
 
     def has_object_permission(self, request, view, obj)->bool:
         return self.has_permission(request, view)
-
 
 
 class ApiViewPermission(BasePermission):

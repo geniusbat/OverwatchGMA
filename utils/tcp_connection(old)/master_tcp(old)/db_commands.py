@@ -20,7 +20,7 @@ def store_command_message(connection, status:db.COMMAND_TYPE, timestamp:int, hos
             INSERT INTO delegate_controls(host,timestamp,command_name,returncode,message) 
             VALUES(?,?,?,?,?);
         '''
-    elif status == db.COMMAND_TYPE.MASTER: #TODO: Create active controls
+    elif status == db.COMMAND_TYPE.MASTER:
         insert_query = '''
             INSERT INTO master_controls(host,timestamp,command_name,returncode,message) 
             VALUES(?,?,?,?,?);

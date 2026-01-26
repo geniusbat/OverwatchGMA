@@ -1,6 +1,8 @@
 import binascii, os
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from rest_framework.authtoken.models import Token
+import datetime
 
 class User(AbstractUser):
     pass
@@ -51,3 +53,20 @@ class DelegateToken(models.Model):
 
     def __str__(self):
         return self.key
+
+class TokenLogs(models.Model):
+    """
+    Class to store access/action logs of DRF Tokens and DelegateTokens
+    """
+    time = models.DateTimeField("log time", default=datetime.datetime.now(datetime.timezone.utc), editable=False)
+    token_type = models.CharField("token type", max_length=15)
+    token = models.CharField("token used", max_length=40) #We store the token as string as it can be either from DRF's tokens or DelegateTokens
+    ip = models.CharField(max_length=39, blank=True, default="")
+    log = models.TextField("log")
+
+    class Meta():
+        ordering = ["-time"]
+        verbose_name = "Token log"
+        verbose_name_plural = "Tokens logs"
+
+    #TODO: Check that tokens come from similar ips if not raise alarm --> Match tokens to ips so if attacker grabs a token then i am warned

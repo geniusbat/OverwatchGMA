@@ -82,7 +82,7 @@ def handle_errors(data:dict):
                 command["stderr"],
             )
 
-#TODO: Define how to handle alerts
+
 def handle_alert(data:dict):
     pass
 
@@ -124,7 +124,7 @@ try:
             elif data["type"] == usual_data.DELEGATE_MESSAGE_TYPE.ERRORS.value or "errors" in data:
                 handle_errors(data)
             elif data["type"] == usual_data.DELEGATE_MESSAGE_TYPE.ALERT.value:
-                handle_alert(data) #TODO: Handle alerts
+                handle_alert(data)
             else:
                 logger.error("Request from {} couldn't be handled, it came with type {}".format(conn.getpeername(), data["type"]))
             

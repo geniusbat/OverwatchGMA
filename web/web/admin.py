@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import escape, mark_safe
 from django.urls import reverse
 from django.contrib.auth.admin import UserAdmin
-from .models import User, UserData, DelegateToken
+from .models import User, UserData, DelegateToken, TokenLogs
 
 class CustomUserAdmin(UserAdmin):
     list_display = ("username", "comment", "date_joined","is_staff", "last_login", "is_active")
@@ -38,3 +38,10 @@ class DeletageTokenAdmin(admin.ModelAdmin):
     host.short_description = 'Host'
     host.admin_order_field = 'host'
 admin.site.register(DelegateToken,DeletageTokenAdmin)
+
+class TokenLogsAdmin(admin.ModelAdmin):
+    list_display = ("time", "token_type", "token","ip", "log",)
+    list_filter = ("token_type",)
+    search_fields = ("ip", "token", "log")
+    ordering = ("-time",)
+admin.site.register(TokenLogs, TokenLogsAdmin)

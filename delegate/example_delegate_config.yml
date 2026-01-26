@@ -1,12 +1,8 @@
 hostname: XX
 commands_directory: XX
 log_file: XX
-#Not truly needed as tcp is no longer used. TODO: Remove
-cert_file: XX
-#Not truly needed as tcp is no longer used. TODO: Remove
-key_file: XX
 api_token: XX
-send_errors: false
+send_errors: true
 tags: 
   - XX
 #ignore_tag_commands:

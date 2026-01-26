@@ -1,7 +1,7 @@
 from rest_framework.authentication import BaseAuthentication, get_authorization_header, exceptions
 from django.contrib.auth.models import AnonymousUser
 
-from . import models
+from . import models, token_logs_handler
 
 #User class used by DelegateTokenAuthentication as it requires an user but no user is actually related to the host_registry
 class DelegateAnonymousUser(AnonymousUser):
@@ -18,6 +18,8 @@ class TokenAuthentication(BaseAuthentication):
 
     Clients should authenticate by passing the token key in the "Authorization" HTTP header, prepended with the string "Token ".  For example:
         Authorization: Token 401f7ac837da42b97f613d789819ff93537bee6a
+
+    It also logs the actions done by tokens for auditing
     """
 
     keyword = 'Token'
@@ -50,6 +52,11 @@ class TokenAuthentication(BaseAuthentication):
         except UnicodeError:
             msg = 'Invalid token header. Token string should not contain invalid characters.'
             raise exceptions.AuthenticationFailed(msg)
+    
+        #Log token action
+        msg = "{} - {} ({})".format(request.method, request.path, request.META["HTTP_USER_AGENT"])
+        print(msg)
+        token_logs_handler.handle_log_token_actions(request, msg)
 
         return self.authenticate_credentials(token)
 

@@ -145,8 +145,6 @@ REST_FRAMEWORK = {
     ]
 }
 
-#TODO: Match tokens to ips so if attacker grabs a token then i am warned
-
 #Specify date formats (for english locale)
 from django.conf.locale.en import formats as en_formats
 en_formats.DATETIME_FORMAT = "H:i:s - d/m/Y"

@@ -38,7 +38,7 @@ class delegate_controls(models.Model):
     timestamp = models.IntegerField()
     command_name = models.CharField(max_length=25)
     returncode = models.IntegerField()
-    message = models.TextField()
+    message = models.TextField(blank=True, default="")
     previous_timestamp = models.IntegerField(blank=True,null=True,default=None)
     previous_returncode = models.IntegerField(blank=True,null=True,default=None)
     previous_message = models.TextField(blank=True,null=True,default=None)
@@ -92,13 +92,12 @@ class delegate_controls(models.Model):
     def __str__(self):
         return "{}-{} ({}):{}".format(self.host, self.command_name, self.timestamp, self.returncode)
 
-
 class delegate_errors(models.Model):
     host = models.CharField(max_length=16)
     timestamp = models.IntegerField()
     command_name = models.CharField(max_length=25)
     returncode = models.IntegerField()
-    message = models.TextField()
+    message = models.TextField(blank=True, default="")
 
     class Meta:
         db_table = "delegate_errors"
@@ -113,13 +112,12 @@ class delegate_errors(models.Model):
     def __str__(self):
         return "{}-{} ({}):{}".format(self.host, self.command_name, self.timestamp, self.returncode)
 
-
 class master_controls(models.Model):
     host = models.CharField(max_length=16)
     timestamp = models.IntegerField()
     command_name = models.CharField(max_length=25)
     returncode = models.IntegerField()
-    message = models.TextField()
+    message = models.TextField(blank=True, default="")
     previous_timestamp = models.IntegerField(blank=True,null=True,default=None)
     previous_returncode = models.IntegerField(blank=True,null=True,default=None)
     previous_message = models.TextField(blank=True,null=True,default=None)
@@ -188,7 +186,6 @@ class master_errors(models.Model):
 
     def __str__(self):
         return "{}-{} ({}):{}".format(self.host, self.command_name, self.timestamp, self.returncode)
-
 
 class hosts_registry(models.Model):
     host = models.CharField(max_length=16, unique=True)
