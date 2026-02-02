@@ -1,0 +1,11 @@
+[Unit]
+Description=Overwatch delegate client
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=<python_path> <delegate_folder>/main.py -c <delegate_config>.yml
+User=root
+
+[Install]
+WantedBy=multi-user.target

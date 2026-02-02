@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(SCRIPT_DIR))
 import usual_data #Load usual_data 
 
 
-from utils import utils, exceptions, logger
+from utils import exceptions, logger
 from utils.structs import HostData, CommandData
 from client import Client
 from run_commands import run_command
@@ -29,9 +29,12 @@ def handle_specific_commands(host:HostData, commands_queued:list[str]) -> Tuple[
             command_path = command.get_path(host.commands_directory)
             #Check if command exists
             if os.path.exists(command_path):
-                try: 
+                try:
                     #Create thread
-                    t = command.create_thread(run_command,host.commands_directory,output_queue,error_queue)
+                    t = command.create_thread(run_command,
+                        host.commands_directory,
+                        output_queue,error_queue
+                    )
                     threads.append(t)
                 #Non-blocking exception raised, log and continue with following commands 
                 except usual_data.non_blocking_exceptions as e:
@@ -82,7 +85,7 @@ if __name__ == "__main__":
         TESTING = args.test
         #Get delegate_config file path from arguments
         config_dir = ""
-        if args.c!=None and len(args.c)>0:
+        if not  args.c is None and len(args.c)>0:
             config_dir = args.c
             #Make sure that file specified exits
             if not os.path.exists(config_dir):

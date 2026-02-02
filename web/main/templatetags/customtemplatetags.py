@@ -34,7 +34,6 @@ def acces_dict(value:dict,key):
 @register.filter
 def substract(first,second):
     try:
-        print(int(first-second))
         return int(first-second)
     except:
         return "Substraction didn't work"

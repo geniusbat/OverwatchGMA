@@ -28,6 +28,12 @@ table .center-cell {
     background-color: rgba(255, 1, 1, 0.564)!important;
 }
 
-.hint { display: none; }
-.center-cell:hover .hint { display: inline; }
-.center-cell:hover .base { display: none; }
+.hint { 
+    display:none; 
+    background-color: aliceblue;
+    transform-origin: 100px 10px;
+    border-right:2px solid black;
+    border-bottom:2px solid black;
+    z-index: 1;
+}
+.center-cell:hover .hint { display:block; position: absolute; }

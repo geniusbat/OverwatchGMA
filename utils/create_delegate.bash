@@ -1,5 +1,5 @@
-#Run from inside utils folder. It will create a folder "standalone" with all the code required to run a delegate client
-standalone="./standalone"
+#Run from inside utils folder. It will create a folder "delegate_standalone" with all the code required to run a delegate client
+standalone="./delegate_standalone"
 
 if [ ! -d "$standalone" ]; then
     mkdir "$standalone"
@@ -17,6 +17,7 @@ cp "$standalone/delegate/example_delegate_config.yml" "$standalone/delegate/dele
 rm "$standalone/delegate/"*.log 
 rm -r "$standalone/delegate/__pycache__"
 rm -r "$standalone/delegate/venv/"
+
 #Copy utils
 if [ ! -d "$standalone/utils" ]; then
     mkdir "$standalone/utils"

@@ -55,7 +55,6 @@ class TokenAuthentication(BaseAuthentication):
     
         #Log token action
         msg = "{} - {} ({})".format(request.method, request.path, request.META["HTTP_USER_AGENT"])
-        print(msg)
         token_logs_handler.handle_log_token_actions(request, msg)
 
         return self.authenticate_credentials(token)

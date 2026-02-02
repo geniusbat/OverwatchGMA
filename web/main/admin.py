@@ -92,15 +92,14 @@ def secs_to_time(value):
 
 # Register your models here
 class delegate_controlsAdmin(admin.ModelAdmin):
-    list_display = ["host", "command_name", "time", "returncode", "message", "last_change_time", ]
+    list_display = ["host", "command_name", "time", "returncode", "message", "last_change_time"]
     list_filter = ["host", ("returncode",ReturncodeFilter), TimestampFilter]
     search_fields = ["command_name", "message", "previous_message"]
-      
 admin.site.register(models.delegate_controls,delegate_controlsAdmin)
 
 
 class delegate_errorsAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in models.delegate_errors._meta.get_fields()]
+    list_display = ["host", "command_name", "time", "returncode", "message"]
     list_filter = ["host", ("returncode",ReturncodeFilter), TimestampFilter]
     search_fields = ["command_name", "message"]
 admin.site.register(models.delegate_errors,delegate_errorsAdmin)
@@ -120,14 +119,14 @@ admin.site.register(models.hosts_registry,hosts_registryAdmin)
 
 
 class master_controlsAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in models.master_controls._meta.get_fields()]
+    list_display = ["host", "command_name", "time", "returncode", "message"]
     list_filter = ["host", ("returncode",ReturncodeFilter), TimestampFilter]
     search_fields = ["command_name", "message"]
 admin.site.register(models.master_controls,master_controlsAdmin)
 
 
 class master_errorsAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in models.master_errors._meta.get_fields()]
+    list_display = ["host", "command_name", "time", "returncode", "message"]
     list_filter = ["host", ("returncode",ReturncodeFilter), TimestampFilter]
     search_fields = ["command_name", "message"]
 admin.site.register(models.master_errors,master_errorsAdmin)
