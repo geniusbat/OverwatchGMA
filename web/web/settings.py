@@ -31,7 +31,7 @@ DEBUG = os.getenv("OVGMA_DEBUG", default="False")=="True"
 
 ALLOWED_HOSTS = ["*"]#TODO: Harden allowed hosts
 
-CSRF_TRUSTED_ORIGINS = ["localhost","overwatchgma.gmasvc.com"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost","https://overwatchgma.gmasvc.com"]
 
 
 # Application definition
