@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 import datetime
 
 def _aux_get_now_utc_timestamp():
-    return int(datetime.datetime.now(datetime.UTC).timestamp())
+    return datetime.datetime.now(datetime.UTC).isoformat()
 
 class User(AbstractUser):
     pass
