@@ -1,0 +1,20 @@
+#!/bin/bash
+
+#Get container
+if [ ! -z "$1" ]
+then
+    CONTAINER="$1"
+else
+    echo "ERROR: Must supply what container to check"
+    exit 1
+fi
+
+running=$(docker inspect --format='{{ .State.Running }}' $CONTAINER  2> /dev/null)
+if [ $? -eq 1 ]; then
+    echo "Not running, 0 secs"
+    exit 0
+fi
+
+uptime=$(docker ps | grep $CONTAINER | awk '{FS ="[ ][ ]+"} {print $5}')
+
+echo "$uptime"

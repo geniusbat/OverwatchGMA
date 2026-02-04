@@ -1,0 +1,21 @@
+#!/bin/bash
+
+#Get container
+if [ ! -z "$1" ]
+then
+    CONTAINER="$1"
+else
+    echo "ERROR: Must supply what container to check"
+    exit 1
+fi
+
+running=$(docker inspect --format='{{ .State.Running }}' $CONTAINER  2> /dev/null)
+if [ $? -eq 1 ]; then
+    echo "WARNING: Container not running"
+    exit 0
+fi
+
+current_usage="$(docker stats --no-stream $CONTAINER | grep -A1 CONTAINER | grep -v CONTAINER | awk '{print $4}')"
+percent="$(docker stats --no-stream $CONTAINER | grep -A1 CONTAINER | grep -v CONTAINER | awk '{print $7}')"
+
+echo "$current_usage at $percent"

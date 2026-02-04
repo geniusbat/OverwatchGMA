@@ -1,2 +1,2 @@
 #!/bin/bash
-cscli decisions list -o raw
+cscli decisions list -o raw | wc -l

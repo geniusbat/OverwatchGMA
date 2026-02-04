@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#Get process
+if [ ! -z "$1" ]
+then
+    PROCESS="$1"
+else
+    echo "ERROR: Must supply what process to check"
+    exit 1
+fi
+
+result=$(ps -ef | grep $PROCESS | grep -v "grep" | grep -v check_process | wc -l)
+
+if [ $result -gt 0 ]; then
+    echo "Process is running"
+else
+    echo "Process not found"
+fi

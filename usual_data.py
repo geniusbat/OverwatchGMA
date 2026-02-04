@@ -26,6 +26,10 @@ tags = {
                 "parameters": ["/"],
                 "frequency": 45
             },
+            "free_memory": {
+                "command": "free_memory",
+                "frequency": 5
+            },
         }
     },
 

@@ -9,7 +9,7 @@ then
 fi
 
 get_free_memory() {
-    free | awk '/Mem:/ {printf "%.1f", $4/$2 * 100}'
+    free | awk '/Mem:/ {printf "%.1f", $7/$2 * 100}'
 }
 
 free_mem=$(get_free_memory)

@@ -36,7 +36,7 @@ class delegate_controls(models.Model):
 
     host = models.CharField(max_length=16)
     timestamp = models.IntegerField()
-    command_name = models.CharField(max_length=25)
+    command_name = models.CharField(max_length=39)
     returncode = models.IntegerField()
     message = models.TextField(blank=True, default="")
     previous_timestamp = models.IntegerField(blank=True,null=True,default=None)
@@ -95,7 +95,7 @@ class delegate_controls(models.Model):
 class delegate_errors(models.Model):
     host = models.CharField(max_length=16)
     timestamp = models.IntegerField()
-    command_name = models.CharField(max_length=25)
+    command_name = models.CharField(max_length=39)
     returncode = models.IntegerField()
     message = models.TextField(blank=True, default="")
 
@@ -115,7 +115,7 @@ class delegate_errors(models.Model):
 class master_controls(models.Model):
     host = models.CharField(max_length=16)
     timestamp = models.IntegerField()
-    command_name = models.CharField(max_length=25)
+    command_name = models.CharField(max_length=39)
     returncode = models.IntegerField()
     message = models.TextField(blank=True, default="")
     previous_timestamp = models.IntegerField(blank=True,null=True,default=None)
@@ -170,7 +170,7 @@ class master_controls(models.Model):
 class master_errors(models.Model):
     host = models.CharField(max_length=16)
     timestamp = models.IntegerField()
-    command_name = models.CharField(max_length=25)
+    command_name = models.CharField(max_length=39)
     returncode = models.IntegerField()
     message = models.TextField()
 

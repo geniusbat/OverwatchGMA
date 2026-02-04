@@ -1,6 +1,5 @@
 #!/bin/bash
 
-#Get threshold passed as argument to script, if not keep it at 80%
 if [ ! -z "$1" ]
 then
     CONTAINER="$1"

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#Get process
+if [ ! -z "$1" ]
+then
+    PROCESS="$1"
+else
+    echo "ERROR: Must supply what process to check"
+    exit 1
+fi
+
+result=$(ps -ef | grep $PROCESS | grep -v "grep" | grep -v check_process | wc -l)
+
+#If given a second input, assume it is to get max threshold of processes running
+if [ ! -z "$2" ]
+then
+    THRESHOLD="$2"
+    if [ "$result" -ge "$THRESHOLD" ]; then
+        echo "WARNING: $result processes running, expected $THRESHOLD"
+        exit 1
+    fi
+#If not just return result
+else
+    echo "$result processes running"
+fi
