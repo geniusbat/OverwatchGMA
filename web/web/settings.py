@@ -27,7 +27,7 @@ if SECRET_KEY == None:
     raise UserWarning("Requiring OVGMA_DJANGO_SECRET env variable for django secret key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.getenv("OVGMA_DEBUG", default=False))
+DEBUG = os.getenv("OVGMA_DEBUG", default="False")=="True"
 
 ALLOWED_HOSTS = ["*"]#TODO: Harden allowed hosts
 
