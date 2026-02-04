@@ -1,5 +1,5 @@
 [Unit]
-Description=Overwatch delegate client
+Description=OverwatchGMA delegate client
 Wants=network-online.target
 After=network-online.target
 

@@ -4,6 +4,9 @@ from django.contrib.auth.models import AbstractUser
 from rest_framework.authtoken.models import Token
 import datetime
 
+def _aux_get_now_utc_timestamp():
+    return int(datetime.datetime.now(datetime.UTC).timestamp())
+
 class User(AbstractUser):
     pass
 
@@ -58,7 +61,7 @@ class TokenLogs(models.Model):
     """
     Class to store access/action logs of DRF Tokens and DelegateTokens
     """
-    time = models.DateTimeField("log time", default=datetime.datetime.now(datetime.timezone.utc), editable=False)
+    time = models.DateTimeField("log time", default=_aux_get_now_utc_timestamp, editable=False)
     token_type = models.CharField("token type", max_length=15)
     token = models.CharField("token used", max_length=40) #We store the token as string as it can be either from DRF's tokens or DelegateTokens
     ip = models.CharField(max_length=39, blank=True, default="")
