@@ -46,7 +46,7 @@ class delegate_controls(models.Model):
 
     class Meta:
         db_table = "delegate_controls"
-        ordering = ["-timestamp","host", "command_name"]
+        ordering = ["host", "-timestamp", "command_name"]
         verbose_name = "delegate_control"
         verbose_name_plural = "delegate_controls"
 
@@ -101,7 +101,7 @@ class delegate_errors(models.Model):
 
     class Meta:
         db_table = "delegate_errors"
-        ordering = ["-timestamp","host", "command_name"]
+        ordering = ["host", "-timestamp", "command_name"]
         verbose_name = "delegate_error"
         verbose_name_plural = "delegate_errors"
 
@@ -125,7 +125,7 @@ class master_controls(models.Model):
 
     class Meta:
         db_table = "master_controls"
-        ordering = ["-timestamp","host", "command_name"]
+        ordering = ["host", "-timestamp", "command_name"]
         verbose_name = "master_control"
         verbose_name_plural = "master_controls"
 
@@ -176,7 +176,7 @@ class master_errors(models.Model):
 
     class Meta:
         db_table = "master_errors"
-        ordering = ["-timestamp","host", "command_name"]
+        ordering = ["host", "-timestamp", "command_name"]
         verbose_name = "master_error"
         verbose_name_plural = "master_errors"
 
