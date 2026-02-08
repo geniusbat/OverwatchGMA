@@ -9,6 +9,24 @@
 
 {% block content %}
 
+    <!-- Search form -->
+    <form action="" method="get">
+        <label for="host">Host:</label>
+        <select name="host" id="host">
+            <option value=""></option>
+            {% for host in hosts %}
+                <option value="{{ host.host }}">{{ host.host }}</option>
+            {% endfor %}
+        </select>
+        <label for="afterStamp">Last:</label>
+        <select name="afterStamp" id="afterStamp">
+            <option value=""></option>
+            {% for last in last_options %}
+                <option value="{{ last.0 }}">{{ last.1 }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Search">
+    </form>
 
     <h2>Delegate Controls <a href="{% url 'admin:main_delegate_controls_changelist' %}">-->Go</a></h2>
     <table class="controls">
