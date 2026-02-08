@@ -100,7 +100,8 @@ if __name__ == "__main__":
            logger.FILE_HANDLER = True
            logger.log_path = host.log_file
         
-        logger.debug("Correctly loaded config, starting delegate service with config {}".format(config_dir))
+        if usual_data.DEBUG:
+            logger.debug("Correctly loaded config, starting delegate service with config {}".format(config_dir))
 
         #Get biggest frequency of all enabled commands
         biggest_frequency = 1
@@ -119,7 +120,8 @@ if __name__ == "__main__":
                     commands_queued.append(command_key)
             #Get current time
             utc_timestamp = int(datetime.datetime.now(datetime.UTC).timestamp())
-            logger.debug("At time {} running commands: {}".format(time_counter, commands_queued))
+            if usual_data.DEBUG:
+                logger.debug("At time {} running commands: {}".format(time_counter, commands_queued))
             #Get result and errors
             result, errors = handle_specific_commands(host, commands_queued)
             #Log errors
@@ -141,7 +143,8 @@ if __name__ == "__main__":
                             logger.warning("Something went wrong when sending controls to master: status code {}, message:\n{}".format(response.status_code,response.text))
                         #Everything alright
                         else:
-                            logger.debug("Connection to master correct and sent data")
+                            if usual_data.DEBUG:
+                                logger.debug("Connection to master correct and sent data")
                     #Send errors (if needed)
                     if host.send_errors:
                         if len(errors)>0:
@@ -151,7 +154,8 @@ if __name__ == "__main__":
                                 logger.warning("Something went wrong when errors to master: status code {}, message:\n{}".format(response.status_code,response.text))
                             #Everything alright
                             else:
-                                logger.debug("Sent errors to master correctly")
+                                if usual_data.DEBUG:
+                                    logger.debug("Sent errors to master correctly")
                 #Handle connection refused
                 except ConnectionRefusedError as e:
                     traceback_str = ''.join(traceback.format_tb(e.__traceback__))
