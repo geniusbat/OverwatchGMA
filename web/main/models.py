@@ -23,13 +23,14 @@ def _secs_to_time(value):
         return None
 
 class manager_delegate_controls(models.Manager):
-    def get_last_timestamp_available(self, host:str)->int:
-        return hosts_registry.objects.get(host=host).last_time_seen
 
     #Get controls not found in hosts_registry
     def get_unregistered_controls(self)->models.QuerySet:
         hosts = hosts_registry.objects.values_list('host', flat=True).distinct()
         return self.get_queryset().all().exclude(host__in=hosts)
+
+    def get_erroring_controls(self) -> models.QuerySet:
+        return self.get_queryset().filter(returncode__gt=0).all()
 
 class delegate_controls(models.Model):
     objects = manager_delegate_controls()
@@ -187,7 +188,30 @@ class master_errors(models.Model):
     def __str__(self):
         return "{}-{} ({}):{}".format(self.host, self.command_name, self.timestamp, self.returncode)
 
+class manager_hosts_registry(models.Manager):
+    def get_statuses(self):
+        res = {}
+        #Average all returncode in delegate_controls for each host
+        for host_status in delegate_controls.objects.all().values("host").annotate(avg_health=models.Avg("returncode")).all():
+            res[host_status["host"]] = host_status["avg_health"]
+        #Now add (and average) the returncode for delegate_errors
+        for host_status in delegate_errors.objects.all().values("host").annotate(avg_health=models.Avg("returncode")).all():
+            if host_status["host"] in res:
+                res[host_status["host"]] = (res[host_status["host"]]+host_status["avg_health"])/2.0
+            else:
+                res[host_status["host"]] = host_status["avg_health"]
+        return res
+
+    def get_host_messages_count(self):
+        res = {}
+        host : hosts_registry
+        for host in self.get_queryset():
+            res[host.host] = {"controls":len(host.get_commands()), "errors":len(host.get_errors())}
+        return res
+
 class hosts_registry(models.Model):
+    objects = manager_hosts_registry()
+
     host = models.CharField(max_length=16, unique=True)
     ip = models.CharField(max_length=39)
     valid_ips = models.CharField(max_length=130, default="127.0.0.1") #String made up of ips, separated by commas
@@ -226,6 +250,12 @@ class hosts_registry(models.Model):
         self.ip = new_ip
         self.last_time_seen = new_stamp
         self.save()
+    
+    def get_commands(self) -> models.QuerySet:
+        return delegate_controls.objects.filter(host=self.host).all()
+
+    def get_errors(self) -> models.QuerySet:
+        return delegate_errors.objects.filter(host=self.host).all()
 
     @property
     def time(self):
@@ -233,6 +263,3 @@ class hosts_registry(models.Model):
 
     def __str__(self):
         return "{}: {}<--{} ({})".format(self.host, self.ip, self.previous_ip, self.last_time_seen)
-    
-
-    from django.contrib.auth.models import AbstractUser

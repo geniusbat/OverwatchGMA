@@ -4,7 +4,7 @@ import datetime
 from . import models
 
 # Create your views here.
-def index(request,test_value=None):
+def index(request):
     #Extract filtering parameters from url
     delegate_controls = models.delegate_controls.objects
     delegate_errors = models.delegate_errors.objects
@@ -50,3 +50,31 @@ def index(request,test_value=None):
 
     return render(request, template, context)
 
+
+def dashboard(request):
+    template = "dashboard.html"
+    context = {}
+    context["hosts"] = models.hosts_registry.objects.all()
+    context["statuses"] = models.hosts_registry.objects.get_statuses()
+    context["messages_count"] = models.hosts_registry.objects.get_host_messages_count()
+    context["recent_errors"] = list(models.delegate_controls.objects.get_erroring_controls()[:5]) + list(models.master_errors.objects.all()[:5]) + list(models.delegate_errors.objects.all()[:5])
+    return render(request, template, context)
+
+def master(request):
+    now = datetime.datetime.now(datetime.UTC)
+    last_options = [
+        [int((now-datetime.timedelta(minutes=5)).timestamp()), "5 minutes"],
+        [int((now-datetime.timedelta(minutes=30)).timestamp()), "30 minutes"],
+        [int((now-datetime.timedelta(hours=1)).timestamp()), "1 hour"],
+        [int((now-datetime.timedelta(hours=2)).timestamp()), "2 hours"],
+        [int((now-datetime.timedelta(hours=7)).timestamp()), "7 hours"],
+        [int((now-datetime.timedelta(days=1)).timestamp()), "1 day"],
+        [int((now-datetime.timedelta(days=15)).timestamp()), "15 days"]
+    ]
+
+    template = "master_view.html"
+    context = {}
+    context["master_controls"] = models.master_controls.objects.all()
+    context["master_errors"]  = models.master_errors.objects.all()
+    context["last_options"] = last_options
+    return render(request, template, context)

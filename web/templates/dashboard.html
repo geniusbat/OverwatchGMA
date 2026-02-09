@@ -1,0 +1,58 @@
+{% extends 'base/base.html' %}
+{% load customtemplatetags %}
+
+{% block head %}
+    {% load static %}
+    <title>Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'dashboard.css' %}">
+{% endblock head %}
+
+{% block content %}
+
+    <h4>Registered hosts: </h4>
+    {% for host in hosts %}
+        <ul>
+            <li><a href="{% url 'index' %}?host={{ host.host }}">{{ host.host }}</a> 
+                - Last time seen: {{ host.last_time_seen|substract_to_now|secs_to_time }}
+                <!-- Add warning if nothing has ever been received -->
+                {% if messages_count|acces_dict:host.host|acces_dict:"controls" == 0 %}
+                    {% if messages_count|acces_dict:host.host|acces_dict:"errors" == 0 %}
+                        <span>Received 0 messages</span>
+                    {% endif %}
+                {% endif %}
+                <!-- Add health as a colored circle -->
+                {% if statuses|acces_dict:host.host == 0 %}
+                    <div class="health_circle good_health"></div>
+                {% else %}
+                    {% if statuses|acces_dict:host.host <= 1 %}
+                        <div class="health_circle medium_health"></div>
+                    {% else %}
+                        <div class="health_circle bad_health"></div>
+                    {% endif %}
+                {% endif %}
+            </li> 
+        </ul>
+    {% endfor %}
+    <h4>Recent errors</h4>
+    <table class="errors">
+        <tr>
+            <th>Host</th>
+            <th>Command name</th>
+            <th class="center-cell">Return code</th>
+            <th class="center-cell">Timestamp</th>
+            <th>Message</th>
+        </tr>
+        {% for error in recent_errors %}
+            <tr>
+                <td>{{ error.host }}</td>
+                <td>{{ error.command_name }}</td>
+                <td class="center-cell">{{ error.returncode }}</td>
+                <td class="center-cell">
+                    <!-- <div class="hint">{{ error.timestamp|secs_to_datetime }}</div> -->
+                    <div class="base">{{ error.timestamp|substract_to_now|secs_to_time }}</div>
+                </td>
+                <td>{{ error.message }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock content %}

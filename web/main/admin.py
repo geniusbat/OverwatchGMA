@@ -112,8 +112,9 @@ class hosts_registryAdmin(admin.ModelAdmin):
     list_filter = ["host"]
     search_fields = ["host", "ip", "valid_ips"]
     def link_to_token(self, obj):
-        link = reverse(f"admin:web_delegatetoken_change", args=[obj.token.pk])
-        return mark_safe(f'<a href="{link}">{escape(obj.token)}</a>')
+        if not obj.token is None:
+            link = reverse(f"admin:web_delegatetoken_change", args=[obj.token.pk])
+            return mark_safe(f'<a href="{link}">{escape(obj.token)}</a>')
     link_to_token.short_description = 'Token'
 admin.site.register(models.hosts_registry,hosts_registryAdmin)
 

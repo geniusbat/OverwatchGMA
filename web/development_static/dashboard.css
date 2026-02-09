@@ -1,0 +1,19 @@
+.health_circle {
+    border-radius: 50%;
+    width: 1.2rem;
+    height: 1.2rem;
+    display: inline-block;
+}
+
+
+.good_health {
+    background-color: greenyellow;
+}
+
+.medium_health {
+    background-color: orange;
+}
+
+.bad_health {
+    background-color: red;
+}
