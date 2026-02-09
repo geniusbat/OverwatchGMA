@@ -57,6 +57,7 @@ def dashboard(request):
     context["hosts"] = models.hosts_registry.objects.all()
     context["statuses"] = models.hosts_registry.objects.get_statuses()
     context["messages_count"] = models.hosts_registry.objects.get_host_messages_count()
+    context["pings"] = models.hosts_registry.objects.get_hosts_ping()
     context["recent_errors"] = list(models.delegate_controls.objects.get_erroring_controls()[:5]) + list(models.master_errors.objects.all()[:5]) + list(models.delegate_errors.objects.all()[:5])
     return render(request, template, context)
 

@@ -13,7 +13,7 @@ cpu_usage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | cut -d'%' -f1)
 if [ "${cpu_usage%.*}" -gt "$THRESHOLD" ]; 
 then
     echo "CRITICAL: High cpu usage above ${THRESHOLD}% (${cpu_usage}%)"
-    exit 0
+    exit 2
 else
     echo "OK - Cpu usage at ${cpu_usage}%"
     exit 0

@@ -1,5 +1,5 @@
 from django.db import models
-import datetime
+import datetime, re
 
 from web.models import DelegateToken
 
@@ -133,7 +133,7 @@ class master_controls(models.Model):
     def store(self):
         #Control already existed, update
         try:
-            previous_control = delegate_controls.objects.get(host=self.host,command_name=self.command_name)
+            previous_control = master_controls.objects.get(host=self.host,command_name=self.command_name)
             #Assign current values to previous 
             previous_control.timestamp = self.timestamp
             previous_control.previous_message = previous_control.message
@@ -149,8 +149,8 @@ class master_controls(models.Model):
             previous_control.save()
             return previous_control
         #Control did not exist, create
-        except delegate_controls.DoesNotExist:
-            obj = delegate_controls(
+        except master_controls.DoesNotExist:
+            obj = master_controls(
                 host = self.host,
                 timestamp = self.timestamp,
                 command_name = self.command_name,
@@ -208,6 +208,18 @@ class manager_hosts_registry(models.Manager):
         for host in self.get_queryset():
             res[host.host] = {"controls":len(host.get_commands()), "errors":len(host.get_errors())}
         return res
+    
+    def get_hosts_ping(self):
+        res = {}
+        host : hosts_registry
+        for host in self.get_queryset():
+            ping_res = master_controls.objects.filter(host=host.host, command_name="host_registry ping").first()
+            if ping_res:
+                res[host.host] = re.search("(Packet loss: \d+.\d+, avg_rtt: \d+.\d+)", ping_res.message).group(0)+"ms"
+            else:
+                res[host.host] = "No ping available"
+        return res
+
 
 class hosts_registry(models.Model):
     objects = manager_hosts_registry()

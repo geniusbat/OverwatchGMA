@@ -30,6 +30,7 @@
                         <div class="health_circle bad_health"></div>
                     {% endif %}
                 {% endif %}
+                {{ pings|acces_dict:host.host }}
             </li> 
         </ul>
     {% endfor %}

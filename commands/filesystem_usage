@@ -6,7 +6,7 @@ then
     DISK="$1"
 else
     echo "ERROR: Must supply what partition  to check"
-    exit 1
+    exit 3
 fi
 
 disk_usage=$(df $DISK | awk 'NR==2 {print $5}'| sed 's/%//' )
@@ -17,7 +17,7 @@ THRESHOLD=90
 if (( $(echo "$disk_usage > $THRESHOLD" | bc -l) ));
 then
     echo "CRITICAL: Filesystem $DISK usage is at ${disk_usage}%"
-    exit 0
+    exit 2
 else
     echo "OK - Filesystem $DISK $disk_usage%"
     exit 0

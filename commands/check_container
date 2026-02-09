@@ -5,7 +5,7 @@ then
     CONTAINER="$1"
 else
     echo "ERROR: Must supply what container to check"
-    exit 1
+    exit 3
 fi
 
 get_running_container_names() {
@@ -28,9 +28,9 @@ else
     if [ $non_running -ge 1 ]
     then
         echo "WARNING - ${CONTAINER} isn't running"
-        exit 0
+        exit 1
     else
         echo "CRITICAL - ${CONTAINER} doesn't exist in host"
-        exit 0
+        exit 2
     fi
 fi

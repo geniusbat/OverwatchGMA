@@ -20,7 +20,7 @@ free_mem=$(get_free_memory)
 if (( $(echo "$free_mem < $THRESHOLD" | bc -l) ));
 then
     echo "CRITICAL: Free memory below ${THRESHOLD}% (${free_mem}%)"
-    exit 0
+    exit 2
 else
     echo "OK - Free memory at $free_mem%"
     exit 0
