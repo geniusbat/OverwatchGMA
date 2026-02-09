@@ -63,6 +63,7 @@ class Client():
         response = self.session.post(full_endpoint, data=data, headers=headers)
         return response
 
+
     def post_delegate_errors(self, data:str):
         #Make sure data is json
         try:

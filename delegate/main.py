@@ -1,5 +1,6 @@
 import time, traceback, queue, datetime, json, argparse
 from typing import Tuple
+import requests.exceptions
 #Add root path to import modules
 import sys
 import os
@@ -156,8 +157,8 @@ if __name__ == "__main__":
                             else:
                                 if usual_data.DEBUG:
                                     logger.debug("Sent errors to master correctly")
-                #Handle connection refused
-                except ConnectionRefusedError as e:
+                #Handle connection refused (so it isn't blocked)
+                except requests.exceptions.ConnectionError as e:
                     traceback_str = ''.join(traceback.format_tb(e.__traceback__))
                     logger.error("Connection refused when sending to master:\n{}".format(traceback_str))
             else:

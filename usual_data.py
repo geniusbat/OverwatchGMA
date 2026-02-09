@@ -1,5 +1,6 @@
 from enum import Enum
 import os
+import requests.exceptions
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 from utils import exceptions
