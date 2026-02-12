@@ -15,9 +15,12 @@ else
     echo "ERROR: Must supply what port to check"
     exit 3
 fi
-result=$(timeout 0.1s netcat -v $DOMAIN $PORT)
-if [[ $result == "" ]]; then
-    echo "Failed";
-    exit 2
-fi
 
+timeout 1 nc -z $DOMAIN $PORT </dev/null; result=$?
+
+if [[ $result -gt 0 ]]; then
+    echo "Failed connection to $DOMAIN:$PORT"
+    exit 2
+#else
+#    echo "Connected to $DOMAIN:$PORT"
+fi
