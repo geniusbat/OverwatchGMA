@@ -16,18 +16,17 @@ import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-ROOT_DIR = BASE_DIR.resolve().parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("OVGMA_DJANGO_SECRET", default=None)
-if SECRET_KEY == None:
-    raise UserWarning("Requiring OVGMA_DJANGO_SECRET env variable for django secret key")
-
-# SECURITY WARNING: don't run with debug turned on in production!
+#Set debug
 DEBUG = os.getenv("OVGMA_DEBUG", default="False")=="True"
+
+#Set secret_key. Keep the secret key used in production a secret!
+SECRET_KEY = os.getenv("OVGMA_DJANGO_SECRET", default=None)
+if SECRET_KEY == None and not DEBUG:
+    raise UserWarning("Requiring OVGMA_DJANGO_SECRET env variable for django secret key")
 
 ALLOWED_HOSTS = ["*"]#TODO: Harden allowed hosts
 
