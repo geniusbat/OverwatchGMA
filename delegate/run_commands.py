@@ -31,7 +31,7 @@ def run_command(command_name:str,command_path:str,user:str=None, parameters:list
             }
             q_output.put(result)
         #Write process stderr, if there is anything in stderr, used in multithreading
-        if q_error:
+        if q_error and process.returncode>0:
             if len(stderr)>0:
                 error = {
                     "command_name": os.path.split(command_name)[-1],

@@ -163,11 +163,9 @@ if __name__ == "__main__":
                     logger.error("Connection refused when sending to master:\n{}".format(traceback_str))
             else:
                 logger.info("Results")
-                for element in result:
-                    logger.info("{}".format(json.dumps(result)))
+                logger.info("{}".format(json.dumps(result)))
                 logger.info("Errors")
-                for element in errors:
-                    logger.info("{}".format(json.dumps(errors)))
+                logger.info("{}".format(json.dumps(errors)))
             #Finishing loop
             time_counter += 1
             #Reset time_counter if surpassing biggest frequency

@@ -16,11 +16,5 @@ else
     exit 3
 fi
 
-timeout 1 nc -z $DOMAIN $PORT </dev/null; result=$?
-
-if [[ $result -gt 0 ]]; then
-    echo "Failed connection to $DOMAIN:$PORT"
-    exit 2
-#else
-#    echo "Connected to $DOMAIN:$PORT"
-fi
+(echo >/dev/tcp/$DOMAIN/$PORT) &>/dev/null && echo "Connected to $DOMAIN:$PORT" && exit 0 || echo "Failed connection to $DOMAIN:$PORT" 
+exit 2
