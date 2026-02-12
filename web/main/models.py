@@ -231,6 +231,7 @@ class hosts_registry(models.Model):
     last_time_seen = models.IntegerField(blank=True, default=_aux_get_now_utc_timestamp)
     previous_last_time_seen = models.IntegerField(blank=True, null=True)
     token = models.OneToOneField(to=DelegateToken,blank=True,null=True, on_delete=models.SET_NULL)
+    check_ping = models.BooleanField("Ping host?", default=True, blank=True)
 
     class Meta:
         db_table = "hosts_registry"
