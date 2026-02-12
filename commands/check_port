@@ -1,3 +1,4 @@
+#!/bin/bash
 #Get domain
 if [ ! -z "$1" ]
 then
@@ -16,5 +17,5 @@ else
     exit 3
 fi
 
-(echo >/dev/tcp/$DOMAIN/$PORT) &>/dev/null && echo "Connected to $DOMAIN:$PORT" && exit 0 || echo "Failed connection to $DOMAIN:$PORT" 
+timeout 0.1s bash -c  "echo >/dev/tcp/$DOMAIN/$PORT" &>/dev/null && echo "Connected to $DOMAIN:$PORT" && exit 0 || echo "Failed connection to $DOMAIN:$PORT" 
 exit 2

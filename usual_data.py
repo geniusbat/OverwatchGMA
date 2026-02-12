@@ -10,7 +10,7 @@ from utils import exceptions
 DEBUG = True
 
 MASTER_IP = "127.0.0.1"
-API_PORT = "8000"
+API_PORT = "9467"
 API_HTTPS = False
 
 DB_DIR = "./db.db"
