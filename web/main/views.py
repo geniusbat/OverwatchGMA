@@ -4,7 +4,7 @@ import datetime
 from . import models
 
 # Create your views here.
-def index(request):
+def delegates(request):
     #Extract filtering parameters from url
     delegate_controls = models.delegate_controls.objects
     delegate_errors = models.delegate_errors.objects

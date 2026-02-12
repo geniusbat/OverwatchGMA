@@ -8,11 +8,11 @@
 {% endblock head %}
 
 {% block content %}
-
+    {% include 'components/dashboard_navbar.html' %}
     <h4>Registered hosts: </h4>
     {% for host in hosts %}
         <ul>
-            <li><a href="{% url 'index' %}?host={{ host.host }}">{{ host.host }}</a> 
+            <li><a href="{% url 'delegates' %}?host={{ host.host }}">{{ host.host }}</a> 
                 - Last time seen: {{ host.last_time_seen|substract_to_now|secs_to_time }}
                 <!-- Add warning if nothing has ever been received -->
                 {% if messages_count|acces_dict:host.host|acces_dict:"controls" == 0 %}

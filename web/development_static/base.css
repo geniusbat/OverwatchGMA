@@ -1,3 +1,12 @@
+.navbar {
+    justify-content: left;
+    padding: 0vh 1.2vw;
+}
+
+.navbar a {
+    margin-right: 2vw;
+}
+
 .controls th, .errors th {
     border-bottom: 5px solid black;
     border-left: 2px solid black;

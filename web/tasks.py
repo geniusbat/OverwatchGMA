@@ -78,7 +78,7 @@ if __name__ == "__main__":
     #Set tasks
     #Example: schedule.every(10).minutes.do(job)
     schedule.every().day.at("10:00").do(error_for_unregistered_delegate_controls)
-    schedule.every().hour.do(control_ping_hosts)
+    schedule.every(5).minutes.do(control_ping_hosts)
     schedule.every().day.at("00:14").do(control_ping_hosts)
     #Run scheduler
     print("Running schedule")
