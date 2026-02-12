@@ -8,3 +8,4 @@ __pycache__
 **/__pycache__/**
 *.log
 delegate/delegate_config.yml
+web/db.db
