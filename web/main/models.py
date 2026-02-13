@@ -215,7 +215,10 @@ class manager_hosts_registry(models.Manager):
         for host in self.get_queryset():
             ping_res = master_controls.objects.filter(host=host.host, command_name="host_registry ping").first()
             if ping_res:
-                res[host.host] = re.search(r"(Packet loss: \d+.\d+, avg_rtt: \d+.\d+)", ping_res.message).group(0)+"ms"
+                if ping_res.returncode == 0:
+                    res[host.host] = re.search(r"(Packet loss: \d+.\d+, avg_rtt: \d+.\d+)", ping_res.message).group(0)+"ms"
+                else:
+                    res[host.host] = f"Old ping, last time was at {datetime.datetime.fromtimestamp(ping_res.timestamp)}"
             else:
                 res[host.host] = "No ping available"
         return res
