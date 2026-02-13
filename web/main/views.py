@@ -38,7 +38,7 @@ def delegates(request):
         [int((now-datetime.timedelta(days=15)).timestamp()), "15 days"]
     ]
 
-    template = "index.html"
+    template = "delegates.html"
     context = {}
     #Add for how long the control has had the same output
     context["delegate_controls"] = delegate_controls.all()

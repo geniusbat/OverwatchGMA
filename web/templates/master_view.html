@@ -3,7 +3,7 @@
 
 {% block head %}
     {% load static %}
-    <title>Index</title>
+    <title>Master</title>
     <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}">
 {% endblock head %}
 
@@ -46,7 +46,10 @@
                 <td>{{ control.host }}</td>
                 <td>{{ control.command_name }}</td>
                 <td class="center-cell">{{ control.returncode }}</td>
-                <td class="center-cell">{{ control.timestamp|secs_to_datetime }}</td>
+                <td class="center-cell">
+                    <div class="hint">{{ control.timestamp|secs_to_datetime }}</div>
+                    <div class="base">{{ control.timestamp|substract_to_now|secs_to_time }}</div>
+                </td>
                 <td class="center-cell">
                     <div class="hint">{{ control.timestamp|secs_to_datetime }}</div>
                     <div class="base">{{ control.timestamp|substract_to_now|secs_to_time }}</div>

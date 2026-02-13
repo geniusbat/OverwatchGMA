@@ -48,13 +48,14 @@ def control_ping_hosts():
                     )
                     control.store()
                 else:
-                    main.models.master_errors.objects.create(
+                    control = main.models.master_controls(
                         host = host.host,
                         timestamp = _aux_now_timestamp(),
                         command_name = f"host_registry ping",
-                        returncode = 2,
+                        returncode = 1,
                         message = f"Could not ping to {host.host} with ip {host.ip}"
                     )
+                    control.store()
             except icmplib.NameLookupError:
                 main.models.master_errors.objects.create(
                     host = host.host,
@@ -80,7 +81,7 @@ if __name__ == "__main__":
     #Example: schedule.every(10).minutes.do(job)
     schedule.every().day.at("10:00").do(error_for_unregistered_delegate_controls)
     schedule.every(15).minutes.do(control_ping_hosts)
-    schedule.every().day.at("00:14").do(control_ping_hosts)
+    schedule.every().day.at("00:14").do(error_havent_received_anything_for_host)
     #Run scheduler
     print("Running schedule")
     #while False:
