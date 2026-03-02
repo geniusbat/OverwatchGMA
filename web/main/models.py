@@ -1,6 +1,7 @@
 from django.db import models
 import datetime, re
 
+from . import email_sender
 from web.models import DelegateToken
 
 def _aux_get_now_utc_timestamp():
@@ -106,6 +107,12 @@ class delegate_errors(models.Model):
         verbose_name = "delegate_error"
         verbose_name_plural = "delegate_errors"
 
+    #Override save method to send email when creating an instance
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            email_sender.send_email_if_required(f"New delegate error for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
+        super(master_errors, self).save(*args, **kwargs)
+
     @property
     def time(self):
         return datetime.datetime.fromtimestamp(self.timestamp)
@@ -180,6 +187,12 @@ class master_errors(models.Model):
         ordering = ["host", "-timestamp", "command_name"]
         verbose_name = "master_error"
         verbose_name_plural = "master_errors"
+    
+    #Override save method to send email when creating an instance
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            email_sender.send_email_if_required(f"New delegate error for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
+        super(master_errors, self).save(*args, **kwargs)
 
     @property
     def time(self):

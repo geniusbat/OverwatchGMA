@@ -50,7 +50,6 @@ def delegates(request):
 
     return render(request, template, context)
 
-
 def dashboard(request):
     template = "dashboard.html"
     context = {}

@@ -154,3 +154,17 @@ en_formats.DATETIME_INPUT_FORMATS = "H:i:s - d/m/Y"
 en_formats.DATE_FORMAT = "d/m/Y"
 en_formats.SHORT_DATE_FORMAT = "d/m/Y"
 en_formats.DATE_INPUT_FORMATS = "d/m/Y"
+
+
+
+EMAIL_NOTIFY = os.getenv("OVGMA_SMTP_NOTIFY", default="False")=="True"
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = os.getenv("OVGMA_EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = os.getenv("OVGMA_EMAIL_HOST_PASSWORD", default="")
+
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+
+EMAIL_RECEIVER = os.getenv("OVGMA_EMAIL_RECEIVER", default="")
