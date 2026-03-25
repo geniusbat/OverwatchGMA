@@ -5,7 +5,7 @@ then
     DOMAIN="$1"
 else
     echo "ERROR: Must supply what domain to check"
-    exit 3
+    exit 1
 fi
 
 #Get port
@@ -14,7 +14,7 @@ then
     PORT="$2"
 else
     echo "ERROR: Must supply what port to check"
-    exit 3
+    exit 1
 fi
 
 timeout 0.1s bash -c  "echo >/dev/tcp/$DOMAIN/$PORT" &>/dev/null && echo "Connected to $DOMAIN:$PORT" && exit 0 || echo "Failed connection to $DOMAIN:$PORT" 

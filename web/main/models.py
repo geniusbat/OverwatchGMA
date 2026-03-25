@@ -69,6 +69,8 @@ class delegate_controls(models.Model):
             previous_control.returncode = self.returncode
             previous_control.timestamp = self.timestamp
             previous_control.save()
+            if self.returncode > 1:
+                email_sender.send_email_if_required(f"New delegate warning for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
             return previous_control
         #Control did not exist, create
         except delegate_controls.DoesNotExist:
@@ -81,6 +83,8 @@ class delegate_controls(models.Model):
                 last_change = _aux_get_now_utc_timestamp()
             )
             obj.save()
+            if self.returncode > 1:
+                email_sender.send_email_if_required(f"New delegate warning for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
             return obj
 
     @property
@@ -154,6 +158,8 @@ class master_controls(models.Model):
             previous_control.returncode = self.returncode
             previous_control.timestamp = self.timestamp
             previous_control.save()
+            if self.returncode > 1:
+                email_sender.send_email_if_required(f"New master warning for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
             return previous_control
         #Control did not exist, create
         except master_controls.DoesNotExist:
@@ -166,6 +172,8 @@ class master_controls(models.Model):
                 last_change = _aux_get_now_utc_timestamp()
             )
             obj.save()
+            if self.returncode > 1:
+                email_sender.send_email_if_required(f"New master warning for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
             return obj
 
     @property
@@ -191,7 +199,7 @@ class master_errors(models.Model):
     #Override save method to send email when creating an instance
     def save(self, *args, **kwargs):
         if self._state.adding:
-            email_sender.send_email_if_required(f"New delegate error for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
+            email_sender.send_email_if_required(f"New master error for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
         super(master_errors, self).save(*args, **kwargs)
 
     @property

@@ -6,7 +6,7 @@ then
     CONTAINER="$1"
 else
     echo "ERROR: Must supply what container to check"
-    exit 3
+    exit 1
 fi
 
 running=$(docker inspect --format='{{ .State.Running }}' $CONTAINER  2> /dev/null)

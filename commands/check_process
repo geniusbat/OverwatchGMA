@@ -6,7 +6,7 @@ then
     PROCESS="$1"
 else
     echo "ERROR: Must supply what process to check"
-    exit 3
+    exit 1
 fi
 
 result=$(ps -ef | grep $PROCESS | grep -v "grep" | grep -v check_process | wc -l)
