@@ -111,7 +111,7 @@ class delegate_errors(models.Model):
     def save(self, *args, **kwargs):
         if self._state.adding:
             email_sender.send_email_if_required(f"New delegate error for {self.host}", f"{self.host}-{self.command_name} ({self.timestamp}):\n{self.returncode}\n{self.message}")
-        super(master_errors, self).save(*args, **kwargs)
+        super(delegate_errors, self).save(*args, **kwargs)
 
     @property
     def time(self):
