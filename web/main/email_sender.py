@@ -12,7 +12,7 @@ def send_email_if_required(subject:str, message:str) -> bool:
             recipient_list=[settings.EMAIL_RECEIVER],
             fail_silently=True
         )
-        if res < 0:
+        if res < 1:
             print("Something went wrong, couldn't send email!")
         else:
             return True

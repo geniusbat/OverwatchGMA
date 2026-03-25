@@ -162,9 +162,16 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = os.getenv("OVGMA_EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = os.getenv("OVGMA_EMAIL_HOST_PASSWORD", default="")
+EMAIL_RECEIVER = os.getenv("OVGMA_EMAIL_RECEIVER", default="")
+
+#Make sure required config is defined for sending emails
+if EMAIL_NOTIFY:
+    if not(len(EMAIL_HOST_USER)>0 and len(EMAIL_HOST_PASSWORD)>0 and len(EMAIL_RECEIVER)>0):
+        raise UserWarning("EMAIL_NOTIFY is set as true but not enough config provided to properly send emails, review EMAIL_HOST_USER, EMAIL_HOST_PASSWORD and EMAIL_RECEIVER")
+
 
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 
-EMAIL_RECEIVER = os.getenv("OVGMA_EMAIL_RECEIVER", default="")
+
